@@ -1,4 +1,4 @@
-namespace commitlint.NET.Tests;
+namespace commitizen.NET.Tests;
 
 public class UnitTest1
 {

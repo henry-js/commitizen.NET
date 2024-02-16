@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
 using LibGit2Sharp;
 
-namespace commitlint.NET;
+namespace commitizen.NET;
 
 public static class ConventionalCommitParser
 {
@@ -10,6 +10,7 @@ public static class ConventionalCommitParser
     private static readonly Regex HeaderPattern = new("^(?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline);
 
     private static readonly Regex IssuesPattern = new("(?<issueToken>#(?<issueId>\\d+))", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline);
+    private static readonly string[] lineFeed = new[] { "\r\n", "\r", "\n" };
 
     public static List<ConventionalCommit> Parse(List<Commit> commits)
     {
@@ -24,7 +25,7 @@ public static class ConventionalCommitParser
         };
 
         var commitMessageLines = commit.Message.Split(
-                new[] { "\r\n", "\r", "\n" },
+                lineFeed,
                 StringSplitOptions.None
             )
             .Select(line => line.Trim())

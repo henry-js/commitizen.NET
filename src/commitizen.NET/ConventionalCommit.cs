@@ -1,4 +1,4 @@
-﻿namespace commitlint.NET;
+﻿namespace commitizen.NET;
 
 public class ConventionalCommit
 {

@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\commitlint.NET\commitlint.NET.csproj" />
+    <ProjectReference Include="..\..\src\commitizen.NET\commitizen.NET.csproj" />
   </ItemGroup>
 
 </Project>

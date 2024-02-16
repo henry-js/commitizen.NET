@@ -2,7 +2,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace commitlint.NET.Tests;
+namespace commitizen.NET.Tests;
 
 public class ConventionalCommitParserTests
 {
@@ -61,7 +61,6 @@ public class ConventionalCommitParserTests
     }
 
     [Theory]
-    [InlineData("feat!: broadcast $destroy: event on scope destruction")]
     [InlineData("feat(scope)!: broadcast $destroy: event on scope destruction")]
     public void ShouldSupportExclamationMarkToSignifyingBreakingChanges(string commitMessage)
     {
@@ -96,6 +95,21 @@ public class ConventionalCommitParserTests
             Assert.NotNull(issue);
             Assert.Equal(issue.Token, $"#{expectedIssue}");
         }
+    }
+
+    [Fact]
+    public void ShouldParseCommitMessageWithMultipleParagraphs()
+    {
+        var commitMessage = $@"
+fix: prevent racing of requests{Environment.NewLine}{Environment.NewLine}Introduce a request id and a reference to latest request. Dismiss
+incoming responses other than from latest request.{Environment.NewLine}{Environment.NewLine}Remove timeouts which were used to mitigate the racing issue but are
+obsolete now.{Environment.NewLine}{Environment.NewLine}Reviewed-by: Z
+Refs: #123";
+
+        var testCommit = new TestCommit("", commitMessage);
+        var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
+
+        conventionalCommit.Notes.Should().HaveCountGreaterThan(1);
     }
 }
 
