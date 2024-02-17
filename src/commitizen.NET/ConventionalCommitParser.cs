@@ -53,7 +53,7 @@ public static class ConventionalCommitParser
                 });
             }
 
-            var issuesMatch = IssuesPattern.Matches(conventionalCommit.Description);
+            var issuesMatch = IssuesPattern.Matches(conventionalCommit.Header.Subject);
             foreach (var issueMatch in issuesMatch.Cast<Match>())
             {
                 conventionalCommit.Issues.Add(
@@ -66,7 +66,7 @@ public static class ConventionalCommitParser
         }
         else
         {
-            conventionalCommit.Description = header;
+            conventionalCommit.Header.Subject = header;
         }
 
         for (var i = 1; i < commit.MessageLines.Length; i++)

@@ -13,9 +13,9 @@ public class ConventionalCommitParserTests
                 var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy event on scope destruction");
                 var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
-                conventionalCommit.Type.Should().Be("feat");
-                conventionalCommit.Scope.Should().Be("scope");
-                conventionalCommit.Description.Should().Be("broadcast $destroy event on scope destruction");
+                conventionalCommit.Header.Type.Should().Be("feat");
+                conventionalCommit.Header.Scope.Should().Be("scope");
+                conventionalCommit.Header.Subject.Should().Be("broadcast $destroy event on scope destruction");
         }
 
         [Fact]
@@ -24,7 +24,7 @@ public class ConventionalCommitParserTests
                 var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event on scope destruction");
                 var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
-                conventionalCommit.Description.Should().Be(testCommit.Message);
+                conventionalCommit.Header.Subject.Should().Be(testCommit.Message);
         }
 
         [Fact]
@@ -33,7 +33,7 @@ public class ConventionalCommitParserTests
                 var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event: on scope destruction");
                 var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
-                conventionalCommit.Description.Should().Be(testCommit.Message);
+                conventionalCommit.Header.Subject.Should().Be(testCommit.Message);
         }
 
         [Fact]
@@ -42,9 +42,9 @@ public class ConventionalCommitParserTests
                 var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy: event on scope destruction");
                 var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
-                conventionalCommit.Type.Should().Be("feat");
-                conventionalCommit.Scope.Should().Be("scope");
-                conventionalCommit.Description.Should().Be("broadcast $destroy: event on scope destruction");
+                conventionalCommit.Header.Type.Should().Be("feat");
+                conventionalCommit.Header.Scope.Should().Be("scope");
+                conventionalCommit.Header.Subject.Should().Be("broadcast $destroy: event on scope destruction");
         }
 
         [Fact]

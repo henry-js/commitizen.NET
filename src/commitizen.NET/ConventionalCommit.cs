@@ -1,57 +1,47 @@
 ﻿namespace commitizen.NET;
 
-public class ConventionalCommit : IConventionalCommitHeader
+public class ConventionalCommit
 {
+    public Header Header { get; set; } = new Header();
+    public Body? Body { get; set; }
+    public Footer? Footer { get; set; }
+
     public string? Sha { get; set; }
-
-    public string Scope { get; set; } = string.Empty;
-
-    public string Type { get; set; } = string.Empty;
-
-    public string Description { get; set; } = string.Empty;
 
     public List<ConventionalCommitNote> Notes { get; set; } = [];
 
     public List<ConventionalCommitIssue> Issues { get; set; } = [];
 
-    public bool IsFeature => Type == "feat";
-    public bool IsFix => Type == "fix";
+    public bool IsFeature => Header.Type == "feat";
+    public bool IsFix => Header.Type == "fix";
     public bool IsBreakingChange => Notes.Any(note => "BREAKING CHANGE".Equals(note.Title));
 }
 
-public interface IConventionalCommitHeader
+public class Footer
 {
-    public string Type { get; }
-    public string Scope { get; }
-    public string Description { get; }
 }
 
-public class ConventionalCommitNote// : IConventionalCommitHeader
+public class Body
 {
-    public string Title { get; set; } = string.Empty;
+}
 
-    public string Text { get; set; } = string.Empty;
+public class Header
+{
+    public string Scope { get; internal set; }
+    public string Type { get; internal set; }
+    public string Subject { get; internal set; }
+}
 
-    // public string Type { get; set; } = string.Empty;
+public class ConventionalCommitNote
+{
+    public string Title { get; set; }
 
-    // public string Scope { get; set; } = string.Empty;
-
-    // public string Description { get; set; } = string.Empty;
+    public string Text { get; set; }
 }
 
 public class ConventionalCommitIssue
 {
-    public string Token { get; set; } = string.Empty;
+    public string Token { get; set; }
 
-    public string Id { get; set; } = string.Empty;
-}
-
-public class ConventionalCommitType
-{
-    public required string Type { get; set; }
-    public string Description { get; set; } = string.Empty;
-    public string Title { get; set; } = string.Empty;
-    public string Emoji { get; set; } = string.Empty;
-
-    public override string ToString() => $"{Emoji}{Type}";
+    public string Id { get; set; }
 }
