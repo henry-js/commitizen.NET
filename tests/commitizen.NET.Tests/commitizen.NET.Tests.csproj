@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\commitizen.NET\commitizen.NET.csproj" />
+    <ProjectReference Include="..\..\src\Lib\Lib.csproj" />
   </ItemGroup>
 
 </Project>
