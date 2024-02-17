@@ -14,7 +14,7 @@ public class ConventionalCommitParserTests
 
         conventionalCommit.Type.Should().Be("feat");
         conventionalCommit.Scope.Should().Be("scope");
-        conventionalCommit.Subject.Should().Be("broadcast $destroy event on scope destruction");
+        conventionalCommit.Description.Should().Be("broadcast $destroy event on scope destruction");
     }
 
     [Fact]
@@ -23,7 +23,7 @@ public class ConventionalCommitParserTests
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event on scope destruction");
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
-        conventionalCommit.Subject.Should().Be(testCommit.Message);
+        conventionalCommit.Description.Should().Be(testCommit.Message);
     }
 
     [Fact]
@@ -32,7 +32,7 @@ public class ConventionalCommitParserTests
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event: on scope destruction");
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
-        conventionalCommit.Subject.Should().Be(testCommit.Message);
+        conventionalCommit.Description.Should().Be(testCommit.Message);
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class ConventionalCommitParserTests
 
         conventionalCommit.Type.Should().Be("feat");
         conventionalCommit.Scope.Should().Be("scope");
-        conventionalCommit.Subject.Should().Be("broadcast $destroy: event on scope destruction");
+        conventionalCommit.Description.Should().Be("broadcast $destroy: event on scope destruction");
     }
 
     [Fact]
@@ -100,11 +100,18 @@ public class ConventionalCommitParserTests
     [Fact]
     public void ShouldParseCommitMessageWithMultipleParagraphs()
     {
-        var commitMessage = $@"
-fix: prevent racing of requests{Environment.NewLine}{Environment.NewLine}Introduce a request id and a reference to latest request. Dismiss
-incoming responses other than from latest request.{Environment.NewLine}{Environment.NewLine}Remove timeouts which were used to mitigate the racing issue but are
-obsolete now.{Environment.NewLine}{Environment.NewLine}Reviewed-by: Z
-Refs: #123";
+        var commitMessage = $"""
+fix: prevent racing of requests
+
+Introduce a request id and a reference to latest request. Dismiss
+incoming responses other than from latest request.
+
+Remove timeouts which were used to mitigate the racing issue but are
+obsolete now.
+
+Reviewed-by: Z
+Refs: #123
+""";
 
         var testCommit = new TestCommit("", commitMessage);
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);

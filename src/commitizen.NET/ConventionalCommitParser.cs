@@ -5,12 +5,16 @@ namespace commitizen.NET;
 
 public static class ConventionalCommitParser
 {
-    private static readonly string[] NoteKeywords = new string[] { "BREAKING CHANGE" };
+    private static readonly string[] NoteKeywords = ["BREAKING CHANGE"];
 
     private static readonly Regex HeaderPattern = new("^(?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline);
 
     private static readonly Regex IssuesPattern = new("(?<issueToken>#(?<issueId>\\d+))", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline);
-    private static readonly string[] lineFeed = new[] { "\r\n", "\r", "\n" };
+    // private static readonly string[] lineFeed = [
+    //     "\r\n",
+    //     "\r",
+    //     "\n"
+    //     ];
 
     public static List<ConventionalCommit> Parse(List<Commit> commits)
     {
@@ -25,16 +29,15 @@ public static class ConventionalCommitParser
         };
 
         var commitMessageLines = commit.Message.Split(
-                lineFeed,
+                Environment.NewLine,
                 StringSplitOptions.None
             )
             .Select(line => line.Trim())
-            .Where(line => !string.IsNullOrWhiteSpace(line))
             .ToList();
 
         var header = commitMessageLines.FirstOrDefault();
 
-        if (header == null)
+        if (string.IsNullOrWhiteSpace(header))
         {
             return conventionalCommit;
         }
@@ -44,7 +47,7 @@ public static class ConventionalCommitParser
         {
             conventionalCommit.Scope = match.Groups["scope"].Value;
             conventionalCommit.Type = match.Groups["type"].Value;
-            conventionalCommit.Subject = match.Groups["subject"].Value;
+            conventionalCommit.Description = match.Groups["subject"].Value;
 
             if (match.Groups["breakingChangeMarker"].Success)
             {
@@ -55,7 +58,7 @@ public static class ConventionalCommitParser
                 });
             }
 
-            var issuesMatch = IssuesPattern.Matches(conventionalCommit.Subject);
+            var issuesMatch = IssuesPattern.Matches(conventionalCommit.Description);
             foreach (var issueMatch in issuesMatch.Cast<Match>())
             {
                 conventionalCommit.Issues.Add(
@@ -68,7 +71,7 @@ public static class ConventionalCommitParser
         }
         else
         {
-            conventionalCommit.Subject = header;
+            conventionalCommit.Description = header;
         }
 
         for (var i = 1; i < commitMessageLines.Count; i++)
@@ -89,4 +92,12 @@ public static class ConventionalCommitParser
 
         return conventionalCommit;
     }
+
+}
+
+internal class ParseResult<ConventionalCommit>
+{
+    public List<string> Errors { get; } = [];
+    public bool IsSuccess => Errors.Count > 0;
+
 }
