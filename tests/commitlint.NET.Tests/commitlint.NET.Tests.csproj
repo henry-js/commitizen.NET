@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\commitlint.NET\commitlint.NET.csproj" />
+    <ProjectReference Include="..\..\src\Lib\Lib.csproj" />
   </ItemGroup>
 
 </Project>

@@ -2,6 +2,12 @@
 
 public class ConventionalCommit
 {
+
+
+    public Header Header { get; set; } = default!;
+    public Body? Body { get; set; }
+    public Footer? Footer { get; set; }
+
     public string? Sha { get; set; }
 
     public string Scope { get; set; }
@@ -17,6 +23,21 @@ public class ConventionalCommit
     public bool IsFeature => Type == "feat";
     public bool IsFix => Type == "fix";
     public bool IsBreakingChange => Notes.Any(note => "BREAKING CHANGE".Equals(note.Title));
+}
+
+public class Footer
+{
+}
+
+public class Body
+{
+}
+
+public class Header
+{
+    public string Scope { get; internal set; }
+    public string Type { get; internal set; }
+    public string Subject { get; internal set; }
 }
 
 public class ConventionalCommitNote

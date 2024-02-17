@@ -1,4 +1,4 @@
-﻿using LibGit2Sharp;
+﻿using commitlint.NET.Tests.Types;
 using FluentAssertions;
 using Xunit;
 
@@ -12,9 +12,9 @@ public class ConventionalCommitParserTests
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy event on scope destruction");
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
-        conventionalCommit.Type.Should().Be("feat");
-        conventionalCommit.Scope.Should().Be("scope");
-        conventionalCommit.Subject.Should().Be("broadcast $destroy event on scope destruction");
+        conventionalCommit.Header.Type.Should().Be("feat");
+        conventionalCommit.Header.Scope.Should().Be("scope");
+        conventionalCommit.Header.Subject.Should().Be("broadcast $destroy event on scope destruction");
     }
 
     [Fact]
@@ -23,7 +23,7 @@ public class ConventionalCommitParserTests
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event on scope destruction");
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
-        conventionalCommit.Subject.Should().Be(testCommit.Message);
+        conventionalCommit.Subject.Should().Be(testCommit.MessageLines);
     }
 
     [Fact]
@@ -32,7 +32,7 @@ public class ConventionalCommitParserTests
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event: on scope destruction");
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
-        conventionalCommit.Subject.Should().Be(testCommit.Message);
+        conventionalCommit.Subject.Should().Be(testCommit.MessageLines);
     }
 
     [Fact]
@@ -41,9 +41,9 @@ public class ConventionalCommitParserTests
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy: event on scope destruction");
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
-        conventionalCommit.Type.Should().Be("feat");
-        conventionalCommit.Scope.Should().Be("scope");
-        conventionalCommit.Subject.Should().Be("broadcast $destroy: event on scope destruction");
+        conventionalCommit.Header.Type.Should().Be("feat");
+        conventionalCommit.Header.Scope.Should().Be("scope");
+        conventionalCommit.Header.Subject.Should().Be("broadcast $destroy: event on scope destruction");
     }
 
     [Fact]
@@ -97,20 +97,4 @@ public class ConventionalCommitParserTests
             Assert.Equal(issue.Token, $"#{expectedIssue}");
         }
     }
-}
-
-public class TestCommit : Commit
-{
-    private readonly string _sha;
-    private readonly string _message;
-
-    public TestCommit(string sha, string message)
-    {
-        _sha = sha;
-        _message = message;
-    }
-
-    public override string Message { get => _message; }
-
-    public override string Sha { get => _sha; }
 }
