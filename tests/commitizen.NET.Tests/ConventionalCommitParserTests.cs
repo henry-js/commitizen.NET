@@ -1,4 +1,4 @@
-﻿using commitlint.NET.Tests.Types;
+﻿using commitizen.NET.Tests.Types;
 using FluentAssertions;
 using Lib;
 using Xunit;

@@ -1,6 +1,6 @@
 using Lib;
 
-namespace commitlint.NET.Tests.Types;
+namespace commitizen.NET.Tests.Types;
 
 public class TestCommit : Commit
 {
