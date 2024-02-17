@@ -1,5 +1,6 @@
-﻿using LibGit2Sharp;
+﻿using commitlint.NET.Tests.Types;
 using FluentAssertions;
+using Lib;
 using Xunit;
 
 namespace commitizen.NET.Tests;
@@ -118,20 +119,4 @@ Refs: #123
 
                 conventionalCommit.Notes.Should().HaveCountGreaterThan(1);
         }
-}
-
-public class TestCommit : Commit
-{
-        private readonly string _sha;
-        private readonly string _message;
-
-        public TestCommit(string sha, string message)
-        {
-                _sha = sha;
-                _message = message;
-        }
-
-        public override string Message { get => _message; }
-
-        public override string Sha { get => _sha; }
 }
