@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6E6CF7AC-7690-4031-9BAC-24F37166E7E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "commitizen.NET", "src\commitizen.NET\commitizen.NET.csproj", "{92A64996-3B00-4775-927B-207167C81F3D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cli", "src\Cli\Cli.csproj", "{92A64996-3B00-4775-927B-207167C81F3D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{ACA97BF5-6140-41B2-AC2A-987BCFB16356}"
 EndProject

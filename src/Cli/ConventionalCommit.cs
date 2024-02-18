@@ -23,6 +23,10 @@ public class Footer : ConventionalCommitNote
 
 public class Body
 {
+    public Body()
+    {
+    }
+    public string[] Paragraphs { get; set; }
 }
 
 public class Header
