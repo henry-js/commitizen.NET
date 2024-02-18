@@ -23,71 +23,104 @@ public static class ConventionalCommitParser
 
     public static ConventionalCommit Parse(Commit commit)
     {
-        var conventionalCommit = new ConventionalCommit
-        {
-            Sha = commit.Sha
-        };
-
-
+        var conventionalCommit = new ConventionalCommit();
 
         var header = commit.MessageLines[0];
 
-        if (string.IsNullOrWhiteSpace(header))
-        {
-            return conventionalCommit;
-        }
+        ValidateHeader(conventionalCommit, header);
 
-        var match = HeaderPattern.Match(header);
-        if (match.Success)
-        {
-            conventionalCommit.Header.Scope = match.Groups["scope"].Value;
-            conventionalCommit.Header.Type = match.Groups["type"].Value;
-            conventionalCommit.Header.Subject = match.Groups["subject"].Value;
+        ValidateRemaining(conventionalCommit, commit.MessageLines[1..]);
 
-            if (match.Groups["breakingChangeMarker"].Success)
+
+
+        return conventionalCommit;
+
+        static void ValidateHeader(ConventionalCommit conventionalCommit, string header)
+        {
+            var match = HeaderPattern.Match(header);
+            if (match.Success)
             {
-                conventionalCommit.Notes.Add(new ConventionalCommitNote
+                conventionalCommit.Header = new Header()
                 {
-                    Title = "BREAKING CHANGE",
-                    Text = string.Empty
-                });
-            }
+                    Scope = match.Groups["scope"].Value,
+                    Type = match.Groups["type"].Value,
+                    Subject = match.Groups["subject"].Value,
+                };
 
-            var issuesMatch = IssuesPattern.Matches(conventionalCommit.Header.Subject);
-            foreach (var issueMatch in issuesMatch.Cast<Match>())
-            {
-                conventionalCommit.Issues.Add(
-                    new ConventionalCommitIssue
+                if (match.Groups["breakingChangeMarker"].Success)
+                {
+                    conventionalCommit.Notes.Add(new ConventionalCommitNote
                     {
-                        Token = issueMatch.Groups["issueToken"].Value,
-                        Id = issueMatch.Groups["issueId"].Value,
+                        Title = "BREAKING CHANGE",
+                        Text = string.Empty
                     });
+                }
+
+                var issuesMatch = IssuesPattern.Matches(conventionalCommit.Header.Subject);
+                foreach (var issueMatch in issuesMatch.Cast<Match>())
+                {
+                    conventionalCommit.Issues.Add(
+                        new ConventionalCommitIssue
+                        {
+                            Token = issueMatch.Groups["issueToken"].Value,
+                            Id = issueMatch.Groups["issueId"].Value,
+                        });
+                }
+            }
+            else
+            {
+                // conventionalCommit.Header.Subject = header;
             }
         }
-        else
-        {
-            conventionalCommit.Header.Subject = header;
-        }
+    }
 
-        for (var i = 1; i < commit.MessageLines.Length; i++)
+    private static void ValidateRemaining(ConventionalCommit conventionalCommit, string[] remainingLines)
+    {
+        var lastEmptyLine = Array.LastIndexOf(remainingLines, string.Empty);
+
+        // body is freeform
+        var body = remainingLines[..lastEmptyLine];
+
+        var footer = remainingLines[lastEmptyLine..];
+
+        /*
+        *   A footer’s token MUST use - in place of whitespace characters, e.g., Acked-by (this helps differentiate the footer section from a multi-paragraph body). An exception is made for BREAKING CHANGE, which MAY also be used as a token.
+        *   A footer’s value MAY contain spaces and newlines, and parsing MUST terminate when the next valid footer token/separator pair is observed.
+        */
+        for (var i = 1; i < footer.Length; i++)
         {
             foreach (var noteKeyword in NoteKeywords)
             {
-                var line = commit.MessageLines[i];
+                var line = footer[i];
                 if (line.StartsWith($"{noteKeyword}:"))
                 {
-                    conventionalCommit.Notes.Add(new ConventionalCommitNote
+                    conventionalCommit.Footers.Add(new Footer
                     {
                         Title = noteKeyword,
                         Text = line[$"{noteKeyword}:".Length..].TrimStart()
                     });
+
+                    continue;
                 }
             }
+
         }
-
-        return conventionalCommit;
+        var footerJoined = string.Join(Environment.NewLine, footer);
+        bool isNewLine = true;
+        int tokenStart = 0;
+        int tokenEnd = 0;
+        string token;
+        for (int i = 0; i < footerJoined.Length; i++)
+        {
+            var current = footerJoined[i];
+            Console.WriteLine(current);
+            if (footerJoined[i] == ':' && i != 0)
+            {
+                token = footerJoined[tokenStart..tokenEnd];
+            }
+            tokenEnd++;
+        }
     }
-
 }
 
 internal class ParseResult<ConventionalCommit>

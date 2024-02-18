@@ -4,9 +4,9 @@ namespace Lib;
 
 public class Commit : LibGit2Sharp.Commit, ICommit
 {
-    private readonly string _sha;
-    private readonly string[] _messageLines;
-    private readonly string _message;
+    protected readonly string _sha;
+    protected readonly string[] _messageLines;
+    protected readonly string _message;
 
     public Commit(string sha, string message)
     {

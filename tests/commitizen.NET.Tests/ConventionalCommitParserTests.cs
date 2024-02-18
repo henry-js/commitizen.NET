@@ -118,5 +118,6 @@ Refs: #123
                 var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
                 conventionalCommit.Notes.Should().HaveCountGreaterThan(1);
+                conventionalCommit.Footers.Should().HaveCount(2);
         }
 }

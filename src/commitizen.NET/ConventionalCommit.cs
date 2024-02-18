@@ -4,7 +4,7 @@ public class ConventionalCommit
 {
     public Header Header { get; set; } = new Header();
     public Body? Body { get; set; }
-    public Footer? Footer { get; set; }
+    public List<Footer> Footers { get; set; } = [];
 
     public string? Sha { get; set; }
 
@@ -17,7 +17,7 @@ public class ConventionalCommit
     public bool IsBreakingChange => Notes.Any(note => "BREAKING CHANGE".Equals(note.Title));
 }
 
-public class Footer
+public class Footer : ConventionalCommitNote
 {
 }
 
@@ -27,9 +27,9 @@ public class Body
 
 public class Header
 {
-    public string Scope { get; internal set; }
-    public string Type { get; internal set; }
-    public string Subject { get; internal set; }
+    public string Scope { get; init; } = string.Empty;
+    public string Type { get; init; } = string.Empty;
+    public string Subject { get; init; } = string.Empty;
 }
 
 public class ConventionalCommitNote
