@@ -1,6 +1,6 @@
 ﻿using commitizen.NET.Tests.Types;
 using FluentAssertions;
-using Lib;
+using commitizen.NET.Lib;
 using Xunit;
 
 namespace commitizen.NET.Tests;

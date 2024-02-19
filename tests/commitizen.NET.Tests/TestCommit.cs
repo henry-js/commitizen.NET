@@ -1,4 +1,4 @@
-using Lib;
+using commitizen.NET.Lib;
 
 namespace commitizen.NET.Tests.Types;
 

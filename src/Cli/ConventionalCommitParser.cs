@@ -1,15 +1,12 @@
 using System.Text.RegularExpressions;
-using Lib;
+using commitizen.NET.Lib;
+using static commitizen.NET.Lib.DefaultPatterns;
 
 namespace commitizen.NET;
 
-public static partial class ConventionalCommitParser
+public static class ConventionalCommitParser
 {
     private static readonly string[] NoteKeywords = ["BREAKING CHANGE"];
-
-    private static readonly Regex HeaderPattern = new(@"^(?<type>[\w\s]*)(?:\((?<scope>.*)\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline);
-    private static readonly Regex IssuesPattern = new(@"(?<issueToken>#(?<issueId>\d+))", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline);
-    private static readonly Regex FooterPattern = new(@"^(?<token>[\w\-]+|BREAKING CHANGE)(?<seperator>: | #)(?<value>.*?(?=$|^([\w\-]+|BREAKING CHANGE)(: | #)))", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline | RegexOptions.Multiline);
 
     public static List<ConventionalCommit> Parse(List<Commit> commits)
     {
@@ -71,10 +68,9 @@ public static partial class ConventionalCommitParser
 
         // body is freeform
         var bodyParagraphs = remainingLines[..^1];
-        conventionalCommit.Body = ParseBody(bodyParagraphs);
 
 
-        var footerLines = remainingLines[lastEmptyLine..];
+        var footerLines = remainingLines[^1];
         var footerString = string.Join(Environment.NewLine, footerLines);
         var footerMatches = FooterPattern.Matches(footerString);
         if (footerMatches.Count > 0)
@@ -94,6 +90,8 @@ public static partial class ConventionalCommitParser
             }
         }
     }
+
+
 }
 internal class ParseResult<ConventionalCommit>
 {
