@@ -93,7 +93,7 @@ public static class ConventionalCommitParser
 
 
 }
-internal class ParseResult<ConventionalCommit>
+public class ParseResult<ConventionalCommit>
 {
     public List<string> Errors { get; } = [];
     public bool IsSuccess => Errors.Count > 0;

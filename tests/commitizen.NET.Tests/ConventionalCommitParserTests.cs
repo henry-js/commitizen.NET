@@ -131,7 +131,9 @@ Refs: #123
 
         public void ShouldFailValidationWhenHeaderScopeIsInvalid(string commitMessage)
         {
+                // var testCommit = new TestCommit("", commitMessage);
 
+                // ParseResult<ConventionalCommit> conventionalCommit = ConventionalCommitParser.TryParse(testCommit);
         }
 
         [Theory]
@@ -140,6 +142,7 @@ Refs: #123
         [InlineData("feat(api2): implement user profile endpoint")]
         public void ShouldFailValidationWhenScopeIsInvalid(string commitMessage)
         {
+                var testCommit = new TestCommit("", commitMessage);
 
         }
 
@@ -150,6 +153,7 @@ Refs: #123
         [InlineData("fix(tests) address failing unit tests")]
         public void ShouldFailValidationWhenDescriptionIsInvalid(string commitMessage)
         {
+                var testCommit = new TestCommit("", commitMessage);
 
         }
 }
