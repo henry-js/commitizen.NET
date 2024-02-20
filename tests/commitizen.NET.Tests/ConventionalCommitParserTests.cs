@@ -121,4 +121,35 @@ Refs: #123
                 conventionalCommit.Notes.Should().HaveCountGreaterThan(1);
                 conventionalCommit.Footers.Should().HaveCount(2);
         }
+
+        [Theory]
+        [InlineData("(auth): add Google Sign-In functionality")]
+        [InlineData("s(ui): resolve styling issues on the login page")]
+        [InlineData("cd(docs): update project documentation")]
+        [InlineData("1fix(unit): add test cases for user authentication")]
+        [InlineData("?chore(api): optimize database query performance")]
+
+        public void ShouldFailValidationWhenHeaderScopeIsInvalid(string commitMessage)
+        {
+
+        }
+
+        [Theory]
+        [InlineData("docs(): clarify installation instructions")]
+        [InlineData("style(add class): format code using Prettier")]
+        [InlineData("feat(api2): implement user profile endpoint")]
+        public void ShouldFailValidationWhenScopeIsInvalid(string commitMessage)
+        {
+
+        }
+
+        [Theory]
+        [InlineData("docs(readme):")]
+        [InlineData("style(css):format code using Prettier")]
+        [InlineData("feat(api)implement user profile endpoint")]
+        [InlineData("fix(tests) address failing unit tests")]
+        public void ShouldFailValidationWhenDescriptionIsInvalid(string commitMessage)
+        {
+
+        }
 }
