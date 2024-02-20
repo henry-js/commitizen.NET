@@ -20,6 +20,9 @@ public static class ConventionalCommitParser
         var header = commit.MessageLines[0];
 
         ValidateHeader(conventionalCommit, header);
+
+        if (commit.MessageLines.Length < 2) return conventionalCommit;
+
         ValidateRemaining(conventionalCommit, commit.MessageLines[1..]);
 
         return conventionalCommit;
@@ -38,7 +41,7 @@ public static class ConventionalCommitParser
 
                 if (match.Groups["breakingChangeMarker"].Success)
                 {
-                    conventionalCommit.Notes.Add(new ConventionalCommitNote
+                    conventionalCommit.Footers.Add(new ConventionalCommitNote
                     {
                         Title = "BREAKING CHANGE",
                         Text = string.Empty
@@ -63,9 +66,15 @@ public static class ConventionalCommitParser
         }
     }
 
+    public static ParseResult<ConventionalCommit> Validate(Commit commit)
+    {
+        throw new NotImplementedException();
+    }
+
     private static void ValidateRemaining(ConventionalCommit conventionalCommit, string[] remainingLines)
     {
 
+        if (remainingLines.Length < 1) return;
         // body is freeform
         var bodyParagraphs = remainingLines[..^1];
 
@@ -90,7 +99,6 @@ public static class ConventionalCommitParser
             }
         }
     }
-
 
 }
 public class ParseResult<ConventionalCommit>
