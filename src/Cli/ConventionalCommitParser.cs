@@ -69,6 +69,20 @@ public static class ConventionalCommitParser
 
     public static Result<ConventionalCommit> Validate(Commit commit)
     {
+        Result<ConventionalCommit> result = ValidateHeaderResult(commit);
+
+        return result;
+    }
+
+    private static Result<ConventionalCommit> ValidateHeaderResult(Commit commit)
+    {
+        var header = commit.MessageLines[0];
+
+        var match = HeaderPattern.Match(header);
+        if (!match.Success)
+        {
+            return Result.Fail("Match failed");
+        }
         throw new NotImplementedException();
     }
 

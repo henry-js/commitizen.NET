@@ -143,18 +143,20 @@ Refs: #123
     [InlineData("1fix(unit): add test cases for user authentication")]
     [InlineData("?chore(api): optimize database query performance")]
 
-    public void ShouldFailValidationWhenHeaderScopeIsInvalid(string commitMessage)
+    public void ShouldFailValidationWhenHeaderTypeIsInvalid(string commitMessage)
     {
         var testCommit = new TestCommit("", commitMessage);
 
         Result<ConventionalCommit> conventionalCommit = ConventionalCommitParser.Validate(testCommit);
+
+        conventionalCommit.IsSuccess.Should().BeTrue();
     }
 
     [Theory]
     [InlineData("docs(): clarify installation instructions")]
     [InlineData("style(add class): format code using Prettier")]
     [InlineData("feat(api2): implement user profile endpoint")]
-    public void ShouldFailValidationWhenScopeIsInvalid(string commitMessage)
+    public void ShouldFailValidationWhenHeaderScopeIsInvalid(string commitMessage)
     {
         var testCommit = new TestCommit("", commitMessage);
 
@@ -165,7 +167,7 @@ Refs: #123
     [InlineData("style(css):format code using Prettier")]
     [InlineData("feat(api)implement user profile endpoint")]
     [InlineData("fix(tests) address failing unit tests")]
-    public void ShouldFailValidationWhenDescriptionIsInvalid(string commitMessage)
+    public void ShouldFailValidationWhenHeaderDescriptionIsInvalid(string commitMessage)
     {
         var testCommit = new TestCommit("", commitMessage);
 
