@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using commitizen.NET.Lib;
+using FluentResults;
 using static commitizen.NET.Lib.DefaultPatterns;
 
 namespace commitizen.NET;
@@ -66,7 +67,7 @@ public static class ConventionalCommitParser
         }
     }
 
-    public static ParseResult<ConventionalCommit> Validate(Commit commit)
+    public static Result<ConventionalCommit> Validate(Commit commit)
     {
         throw new NotImplementedException();
     }

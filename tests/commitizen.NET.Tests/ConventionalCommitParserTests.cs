@@ -2,6 +2,7 @@
 using FluentAssertions;
 using commitizen.NET.Lib;
 using Xunit;
+using FluentResults;
 
 namespace commitizen.NET.Tests;
 
@@ -53,9 +54,9 @@ public class ConventionalCommitParserTests
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy: event on scope destruction\nBREAKING CHANGE: this will break rc1 compatibility");
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
-        Assert.Single(conventionalCommit.Notes);
+        Assert.Single(conventionalCommit.Footers);
 
-        var breakingChangeNote = conventionalCommit.Notes.Single();
+        var breakingChangeNote = conventionalCommit.Footers.Single();
 
         Assert.Equal("BREAKING CHANGE", breakingChangeNote.Title);
         Assert.Equal("this will break rc1 compatibility", breakingChangeNote.Text);
@@ -68,9 +69,9 @@ public class ConventionalCommitParserTests
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
-        conventionalCommit.Notes.Should().HaveCount(1, "single line commits can only have 1 message");
-        conventionalCommit.Notes[0].Title.Should().Be("BREAKING CHANGE");
-        conventionalCommit.Notes[0].Text.Should().Be(string.Empty);
+        conventionalCommit.Footers.Should().HaveCount(1, "single line commits can only have 1 message");
+        conventionalCommit.Footers[0].Title.Should().Be("BREAKING CHANGE");
+        conventionalCommit.Footers[0].Text.Should().Be(string.Empty);
     }
 
 
@@ -97,12 +98,26 @@ public class ConventionalCommitParserTests
             Assert.Equal(issue.Token, $"#{expectedIssue}");
         }
     }
+    [Fact]
+    public void BreakingChangeExclaimAndFooterShouldOnlyCreateOneFooter()
+    {
+        var commitMessage = """
+feat!: Replace old button with new design
+
+BREAKING CHANGE: old button is gone gone gone!!!!!!!
+""";
+
+        var testCommit = new TestCommit("", commitMessage);
+        var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
+
+        conventionalCommit.Footers.Count.Should().Be(1);
+    }
 
     [Fact]
     public void ShouldParseCommitMessageWithMultipleParagraphs()
     {
         var commitMessage = $"""
-fix: prevent racing of requests
+fix!: prevent racing of requests
 
 Introduce a request id and a reference to latest request. Dismiss
 incoming responses other than from latest request.
@@ -118,8 +133,7 @@ Refs: #123
         var testCommit = new TestCommit("", commitMessage);
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
-        conventionalCommit.Notes.Should().HaveCountGreaterThan(1);
-        conventionalCommit.Footers.Should().HaveCount(2);
+        conventionalCommit.Footers.Should().HaveCount(3);
     }
 
     [Theory]
@@ -131,9 +145,9 @@ Refs: #123
 
     public void ShouldFailValidationWhenHeaderScopeIsInvalid(string commitMessage)
     {
-        // var testCommit = new TestCommit("", commitMessage);
+        var testCommit = new TestCommit("", commitMessage);
 
-        // ParseResult<ConventionalCommit> conventionalCommit = ConventionalCommitParser.TryParse(testCommit);
+        Result<ConventionalCommit> conventionalCommit = ConventionalCommitParser.Validate(testCommit);
     }
 
     [Theory]
