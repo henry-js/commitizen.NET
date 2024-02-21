@@ -14,6 +14,11 @@ internal class LintCommand(IConventionalCommitParser parser) : Command<LintComma
         var commit = new Commit("", settings.CommitMessage);
 
         var result = parser.Validate(commit);
+
+        if (result.IsSuccess)
+        {
+
+        }
         return 01;
     }
     internal class Settings : CommandSettings

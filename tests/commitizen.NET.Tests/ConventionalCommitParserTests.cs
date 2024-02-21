@@ -104,7 +104,6 @@ public class ConventionalCommitParserTests
         conventionalCommit.Footers[0].Text.Should().Be(string.Empty);
     }
 
-
     // TODO: Update to support issue syntax from other platforms i.e. Jira ('VE-####')
     [Theory]
     [InlineData("fix: subject text #64", new[] { "64" })]
@@ -122,13 +121,13 @@ public class ConventionalCommitParserTests
         var result = parser.Validate(testCommit);
         var conventionalCommit = result.Value;
 
-        Assert.Equal(conventionalCommit.Issues.Count, expectedIssues.Length);
+        conventionalCommit.Issues.Count.Should().Be(expectedIssues.Length);
 
         foreach (var expectedIssue in expectedIssues)
         {
             var issue = conventionalCommit.Issues.SingleOrDefault(x => x.Id == expectedIssue);
-            Assert.NotNull(issue);
-            Assert.Equal(issue.Token, $"#{expectedIssue}");
+            issue.Should().NotBeNull();
+            issue?.Token.Should().Be($"#{expectedIssue}");
         }
     }
     [Fact]
@@ -141,11 +140,12 @@ BREAKING CHANGE: old button is gone gone gone!!!!!!!
 """;
 
         var parser = new ConventionalCommitParser(defaultSettings);
-
         var testCommit = new TestCommit("", commitMessage);
+
         var result = parser.Validate(testCommit);
         var conventionalCommit = result.Value;
 
+        //Assert
         conventionalCommit.Footers.Count.Should().Be(1);
     }
 

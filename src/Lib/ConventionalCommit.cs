@@ -10,6 +10,8 @@ public class ConventionalCommit
     public bool IsFeature => Header.Type == "feat";
     public bool IsFix => Header.Type == "fix";
     public bool IsBreakingChange => Footers.Any(note => "BREAKING CHANGE".Equals(note.Title));
+
+    public required string Original { get; init; }
 }
 
 public class Footer : ConventionalCommitNote
