@@ -81,8 +81,49 @@ public static class ConventionalCommitParser
         var match = HeaderPattern.Match(header);
         if (!match.Success)
         {
-            return Result.Fail("Match failed");
+            return Result.Fail(new InvalidConventionalCommitSyntaxError(header));
         }
+        var vr = new ValidationResult();
+
+        var conventionalCommit = new ConventionalCommit()
+        {
+            Header = new()
+            {
+                Type = ValidateType(match.Groups["type"].Value, vr),
+                Scope = ValidateScope(match.Groups["scope"].Value, vr),
+                Subject = ValidateSubject(match.Groups["subject"].Value, vr),
+            }
+        };
+
+        if (vr.Errors.Count > 0)
+        {
+            return Result.Fail(vr.Errors)
+                .WithSuccesses(vr.Warnings)
+                .ToResult(conventionalCommit);
+        }
+
+        return Result.Ok(conventionalCommit)
+            .WithSuccesses(vr.Warnings);
+    }
+
+    private static string ValidateScope(string input, ValidationResult validationResult)
+    {
+        var scope = ScopePattern.Match(input);
+
+        if (scope.Success)
+        {
+        }
+
+        return "";
+    }
+
+    private static string ValidateType(string value, ValidationResult validationResult)
+    {
+        throw new NotImplementedException();
+    }
+
+    private static string ValidateSubject(string value, ValidationResult validationResult)
+    {
         throw new NotImplementedException();
     }
 
@@ -114,12 +155,6 @@ public static class ConventionalCommitParser
             }
         }
     }
-
-}
-public class ParseResult<ConventionalCommit>
-{
-    public List<string> Errors { get; } = [];
-    public bool IsSuccess => Errors.Count > 0;
 
 }
 

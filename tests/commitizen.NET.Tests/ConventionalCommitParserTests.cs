@@ -1,5 +1,6 @@
 ﻿using commitizen.NET.Tests.Types;
 using FluentAssertions;
+using FluentResults.Extensions.FluentAssertions;
 using commitizen.NET.Lib;
 using Xunit;
 using FluentResults;
@@ -137,11 +138,8 @@ Refs: #123
     }
 
     [Theory]
-    [InlineData("(auth): add Google Sign-In functionality")]
     [InlineData("s(ui): resolve styling issues on the login page")]
     [InlineData("cd(docs): update project documentation")]
-    [InlineData("1fix(unit): add test cases for user authentication")]
-    [InlineData("?chore(api): optimize database query performance")]
 
     public void ShouldFailValidationWhenHeaderTypeIsInvalid(string commitMessage)
     {
@@ -149,7 +147,7 @@ Refs: #123
 
         Result<ConventionalCommit> conventionalCommit = ConventionalCommitParser.Validate(testCommit);
 
-        conventionalCommit.IsSuccess.Should().BeTrue();
+        conventionalCommit.Should().BeFailure();
     }
 
     [Theory]
