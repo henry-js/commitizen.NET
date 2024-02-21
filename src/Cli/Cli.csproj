@@ -10,15 +10,32 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>czn</AssemblyName>
+
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>czn</ToolCommandName>
+    <PackageId>commitizen.NET</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Authors>henry-js</Authors>
+    <RepositoryUrl>https://github.com/henry-js/commitizen.NET</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Community.Extensions.Spectre.Cli.Hosting" Version="1.0.6" />
+    <PackageReference Include="FluentResults" Version="3.15.2" />
     <PackageReference Include="LibGit2Sharp" Version="0.29.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="MinVer" Version="4.3.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="RulesEngine" Version="5.0.3" />
+    <PackageReference Include="Spectre.Console.Cli" Version="0.48.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lib\Lib.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,8 +44,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Lib\Lib.csproj" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\"></None>
   </ItemGroup>
+
   <Target Name="Husky" BeforeTargets="Restore;CollectPackageReferences" Condition="'$(HUSKY)' != 0">
     <Exec Command="dotnet tool restore" StandardOutputImportance="Low" StandardErrorImportance="High" />
     <Exec Command="dotnet husky install" StandardOutputImportance="Low" StandardErrorImportance="High" WorkingDirectory="..\.." />

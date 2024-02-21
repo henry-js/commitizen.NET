@@ -1,15 +1,43 @@
-﻿using System.Text.Json;
-using RulesEngine.Models;
+﻿using commitizen.NET.Cli;
+using commitizen.NET.Lib;
+using Community.Extensions.Spectre.Cli.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Spectre.Console.Cli;
 
-var workflows = JsonSerializer.Deserialize<Workflow[]>(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "workflow.json")));
-var re = new RulesEngine.RulesEngine(workflows);
-var input1 = new { country = "india", loyaltyFactor = 2, totalPurchasesToDate = 6000 };
-var input2 = new { totalOrders = 3 };
-var input3 = new { noOfVisitsPerMonth = 3 };
-
-var resultList = await re.ExecuteAllRulesAsync("Discount", input1, input2, input3);
-
-foreach (var result in resultList)
+var builder = Host.CreateApplicationBuilder(args);
+builder.Configuration.Sources.Clear();
+builder.Configuration.AddJsonFile("settings.json", false);
+builder.Services.Configure<LintingSettings>(builder.Configuration.GetRequiredSection("LintingSettings"));
+builder.Services.AddSingleton(resolver =>
 {
-    Console.WriteLine($"Rule - {result.Rule.RuleName}, IsSuccess - {result.IsSuccess}");
-}
+    var options = resolver.GetRequiredService<IOptions<LintingSettings>>();
+    return options.Value;
+});
+
+// Add a command and optionally configure it.
+builder.Services.AddSingleton<IConventionalCommitParser, ConventionalCommitParser>();
+builder.Services.AddCommand<LintCommand>("lint", cmd =>
+{
+    cmd.WithDescription("A command that lints");
+});
+
+//
+// The standard call save for the commands will be pre-added & configured
+//
+builder.UseSpectreConsole<LintCommand>(config =>
+{
+    // All commands above are passed to config.AddCommand() by this point
+
+#if DEBUG
+    config.PropagateExceptions();
+    config.ValidateExamples();
+#endif
+    config.SetApplicationName("czn");
+    config.UseBasicExceptionHandler();
+});
+
+var app = builder.Build();
+app.Run();

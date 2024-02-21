@@ -2,7 +2,7 @@
 
 namespace commitizen.NET.Lib;
 
-public class Commit : LibGit2Sharp.Commit, ICommit
+public class Commit //: LibGit2Sharp.Commit, ICommit
 {
     protected readonly string _sha;
     protected readonly string[] _messageLines;
@@ -18,7 +18,7 @@ public class Commit : LibGit2Sharp.Commit, ICommit
                 StringSplitOptions.None);
     }
 
-    public override string Message => _message;
+    public string Message => _message;
     public string[] MessageLines => _messageLines;
 
 }
