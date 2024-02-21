@@ -27,7 +27,8 @@ public class ConventionalCommitParserTests
     {
         var parser = new ConventionalCommitParser(commitTypes);
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy event on scope destruction");
-        var conventionalCommit = parser.Parse(testCommit);
+        var result = parser.Validate(testCommit);
+        var conventionalCommit = result.Value;
 
         conventionalCommit.Header.Type.Should().Be("feat");
         conventionalCommit.Header.Scope.Should().Be("scope");
@@ -40,7 +41,8 @@ public class ConventionalCommitParserTests
         var parser = new ConventionalCommitParser(commitTypes);
 
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event on scope destruction");
-        var conventionalCommit = parser.Parse(testCommit);
+        var result = parser.Validate(testCommit);
+        var conventionalCommit = result.Value;
 
         conventionalCommit.Header.Subject.Should().Be(testCommit.Message);
     }
@@ -51,7 +53,8 @@ public class ConventionalCommitParserTests
         var parser = new ConventionalCommitParser(commitTypes);
 
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event: on scope destruction");
-        var conventionalCommit = parser.Parse(testCommit);
+        var result = parser.Validate(testCommit);
+        var conventionalCommit = result.Value;
 
         conventionalCommit.Header.Subject.Should().Be(testCommit.Message);
     }
@@ -62,7 +65,8 @@ public class ConventionalCommitParserTests
         var parser = new ConventionalCommitParser(commitTypes);
 
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy: event on scope destruction");
-        var conventionalCommit = parser.Parse(testCommit);
+        var result = parser.Validate(testCommit);
+        var conventionalCommit = result.Value;
 
         conventionalCommit.Header.Type.Should().Be("feat");
         conventionalCommit.Header.Scope.Should().Be("scope");
@@ -74,8 +78,13 @@ public class ConventionalCommitParserTests
     {
         var parser = new ConventionalCommitParser(commitTypes);
 
-        var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy: event on scope destruction\nBREAKING CHANGE: this will break rc1 compatibility");
-        var conventionalCommit = parser.Parse(testCommit);
+        var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", """
+        feat(scope): broadcast $destroy: event on scope destruction
+
+        BREAKING CHANGE: this will break rc1 compatibility
+        """);
+        var result = parser.Validate(testCommit);
+        var conventionalCommit = result.Value;
 
         Assert.Single(conventionalCommit.Footers);
 
@@ -92,7 +101,8 @@ public class ConventionalCommitParserTests
         var parser = new ConventionalCommitParser(commitTypes);
 
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
-        var conventionalCommit = parser.Parse(testCommit);
+        var result = parser.Validate(testCommit);
+        var conventionalCommit = result.Value;
 
         conventionalCommit.Footers.Should().HaveCount(1, "single line commits can only have 1 message");
         conventionalCommit.Footers[0].Title.Should().Be("BREAKING CHANGE");
@@ -114,7 +124,8 @@ public class ConventionalCommitParserTests
         var parser = new ConventionalCommitParser(commitTypes);
 
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
-        var conventionalCommit = parser.Parse(testCommit);
+        var result = parser.Validate(testCommit);
+        var conventionalCommit = result.Value;
 
         Assert.Equal(conventionalCommit.Issues.Count, expectedIssues.Length);
 
@@ -137,7 +148,8 @@ BREAKING CHANGE: old button is gone gone gone!!!!!!!
         var parser = new ConventionalCommitParser(commitTypes);
 
         var testCommit = new TestCommit("", commitMessage);
-        var conventionalCommit = parser.Parse(testCommit);
+        var result = parser.Validate(testCommit);
+        var conventionalCommit = result.Value;
 
         conventionalCommit.Footers.Count.Should().Be(1);
     }
@@ -162,7 +174,8 @@ Refs: #123
         var parser = new ConventionalCommitParser(commitTypes);
 
         var testCommit = new TestCommit("", commitMessage);
-        var conventionalCommit = parser.Parse(testCommit);
+        var result = parser.Validate(testCommit);
+        var conventionalCommit = result.Value;
 
         conventionalCommit.Footers.Should().HaveCount(3);
     }
@@ -189,7 +202,6 @@ Refs: #123
     public void ShouldFailValidationWhenHeaderScopeIsInvalid(string commitMessage)
     {
         var testCommit = new TestCommit("", commitMessage);
-
     }
 
     [Theory]

@@ -17,69 +17,85 @@ public class ConventionalCommitParser
 
     public Dictionary<string, CommitType> CommitTypes { get; }
 
-    public List<ConventionalCommit> Parse(List<Commit> commits)
-    {
-        return commits.ConvertAll(Parse);
-    }
+    // public List<ConventionalCommit> Parse(List<Commit> commits)
+    // {
+    //     return commits.ConvertAll(Parse);
+    // }
 
-    public ConventionalCommit Parse(Commit commit)
-    {
-        var conventionalCommit = new ConventionalCommit();
+    // public ConventionalCommit Parse(Commit commit)
+    // {
+    //     var conventionalCommit = new ConventionalCommit();
 
-        var header = commit.MessageLines[0];
+    //     var header = commit.MessageLines[0];
 
-        ValidateHeader(conventionalCommit, header);
+    //     ValidateHeader(conventionalCommit, header);
 
-        if (commit.MessageLines.Length < 2) return conventionalCommit;
+    //     if (commit.MessageLines.Length < 2) return conventionalCommit;
 
-        ValidateRemaining(conventionalCommit, commit.MessageLines[1..]);
+    //     ValidateRemaining(conventionalCommit, commit.MessageLines[1..]);
 
-        return conventionalCommit;
+    //     return conventionalCommit;
 
-        void ValidateHeader(ConventionalCommit conventionalCommit, string header)
-        {
-            var match = HeaderPattern.Match(header);
-            if (match.Success)
-            {
-                conventionalCommit.Header = new Header()
-                {
-                    Scope = match.Groups["scope"].Value,
-                    Type = match.Groups["type"].Value,
-                    Subject = match.Groups["subject"].Value,
-                };
+    //     void ValidateHeader(ConventionalCommit conventionalCommit, string header)
+    //     {
+    //         var match = HeaderPattern.Match(header);
+    //         if (match.Success)
+    //         {
+    //             conventionalCommit.Header = new Header()
+    //             {
+    //                 Scope = match.Groups["scope"].Value,
+    //                 Type = match.Groups["type"].Value,
+    //                 Subject = match.Groups["subject"].Value,
+    //             };
 
-                if (match.Groups["breakingChangeMarker"].Success)
-                {
-                    conventionalCommit.Footers.Add(new ConventionalCommitNote
-                    {
-                        Title = "BREAKING CHANGE",
-                        Text = string.Empty
-                    });
-                }
+    //             if (match.Groups["breakingChangeMarker"].Success)
+    //             {
+    //                 conventionalCommit.Footers.Add(new ConventionalCommitNote
+    //                 {
+    //                     Title = "BREAKING CHANGE",
+    //                     Text = string.Empty
+    //                 });
+    //             }
 
-                var issuesMatch = IssuesPattern.Matches(conventionalCommit.Header.Subject);
-                foreach (var issueMatch in issuesMatch.Cast<Match>())
-                {
-                    conventionalCommit.Issues.Add(
-                        new ConventionalCommitIssue
-                        {
-                            Token = issueMatch.Groups["issueToken"].Value,
-                            Id = issueMatch.Groups["issueId"].Value,
-                        });
-                }
-            }
-            else
-            {
-                // conventionalCommit.Header.Subject = header;
-            }
-        }
-    }
+    //             var issuesMatch = IssuesPattern.Matches(conventionalCommit.Header.Subject);
+    //             foreach (var issueMatch in issuesMatch.Cast<Match>())
+    //             {
+    //                 conventionalCommit.Issues.Add(
+    //                     new ConventionalCommitIssue
+    //                     {
+    //                         Token = issueMatch.Groups["issueToken"].Value,
+    //                         Id = issueMatch.Groups["issueId"].Value,
+    //                     });
+    //             }
+    //         }
+    //         else
+    //         {
+    //             // conventionalCommit.Header.Subject = header;
+    //         }
+    //     }
+    // }
 
     public Result<ConventionalCommit> Validate(Commit commit)
     {
         Result<ConventionalCommit> result = ValidateHeaderResult(commit);
-
+        CheckForIssues(result);
         return result;
+    }
+
+    private void CheckForIssues(Result<ConventionalCommit> result)
+    {
+        var conventionalCommit = result.Value;
+        var issuesMatch = IssuesPattern.Matches(conventionalCommit.Header.Subject);
+
+        foreach (var issueMatch in issuesMatch.Cast<Match>())
+        {
+            conventionalCommit.Issues.Add(
+                new ConventionalCommitIssue
+                {
+                    Token = issueMatch.Groups["issueToken"].Value,
+                    Id = issueMatch.Groups["issueId"].Value,
+                });
+        }
     }
 
     private Result<ConventionalCommit> ValidateHeaderResult(Commit commit)
@@ -99,9 +115,29 @@ public class ConventionalCommitParser
             {
                 Type = ValidateType(match.Groups["type"].Value, vr),
                 Scope = ValidateScope(match.Groups["scope"].Value, vr),
-                Subject = ValidateSubject(match.Groups["subject"].Value, vr),
+                Subject = match.Groups["subject"].Value,
             }
         };
+
+        if (match.Groups["breakingChangeMarker"].Success)
+        {
+            conventionalCommit.Footers.Add(new ConventionalCommitNote
+            {
+                Title = "BREAKING CHANGE",
+                Text = string.Empty
+            });
+        }
+
+        var issuesMatch = IssuesPattern.Matches(conventionalCommit.Header.Subject);
+        foreach (var issueMatch in issuesMatch.Cast<Match>())
+        {
+            conventionalCommit.Issues.Add(
+                new ConventionalCommitIssue
+                {
+                    Token = issueMatch.Groups["issueToken"].Value,
+                    Id = issueMatch.Groups["issueId"].Value,
+                });
+        }
 
         if (vr.Errors.Count > 0)
         {
@@ -120,9 +156,10 @@ public class ConventionalCommitParser
 
         if (scope.Success)
         {
+            return input;
         }
 
-        return "";
+        return input;
     }
 
     private string ValidateType(string value, ValidationResult validationResult)
