@@ -10,6 +10,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>czn</AssemblyName>
+
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>czn</ToolCommandName>
   </PropertyGroup>
 
   <ItemGroup>
