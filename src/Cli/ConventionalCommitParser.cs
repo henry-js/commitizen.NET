@@ -1,20 +1,28 @@
 using System.Text.RegularExpressions;
 using commitizen.NET.Lib;
 using FluentResults;
+using Microsoft.Extensions.Configuration;
 using static commitizen.NET.Lib.DefaultPatterns;
 
 namespace commitizen.NET;
 
-public static class ConventionalCommitParser
+public class ConventionalCommitParser
 {
-    private static readonly string[] NoteKeywords = ["BREAKING CHANGE"];
+    public ConventionalCommitParser(Dictionary<string, CommitType> commitTypes)
+    {
+        CommitTypes = commitTypes;
+    }
 
-    public static List<ConventionalCommit> Parse(List<Commit> commits)
+    private readonly string[] NoteKeywords = ["BREAKING CHANGE"];
+
+    public Dictionary<string, CommitType> CommitTypes { get; }
+
+    public List<ConventionalCommit> Parse(List<Commit> commits)
     {
         return commits.ConvertAll(Parse);
     }
 
-    public static ConventionalCommit Parse(Commit commit)
+    public ConventionalCommit Parse(Commit commit)
     {
         var conventionalCommit = new ConventionalCommit();
 
@@ -28,7 +36,7 @@ public static class ConventionalCommitParser
 
         return conventionalCommit;
 
-        static void ValidateHeader(ConventionalCommit conventionalCommit, string header)
+        void ValidateHeader(ConventionalCommit conventionalCommit, string header)
         {
             var match = HeaderPattern.Match(header);
             if (match.Success)
@@ -67,14 +75,14 @@ public static class ConventionalCommitParser
         }
     }
 
-    public static Result<ConventionalCommit> Validate(Commit commit)
+    public Result<ConventionalCommit> Validate(Commit commit)
     {
         Result<ConventionalCommit> result = ValidateHeaderResult(commit);
 
         return result;
     }
 
-    private static Result<ConventionalCommit> ValidateHeaderResult(Commit commit)
+    private Result<ConventionalCommit> ValidateHeaderResult(Commit commit)
     {
         var header = commit.MessageLines[0];
 
@@ -106,7 +114,7 @@ public static class ConventionalCommitParser
             .WithSuccesses(vr.Warnings);
     }
 
-    private static string ValidateScope(string input, ValidationResult validationResult)
+    private string ValidateScope(string input, ValidationResult validationResult)
     {
         var scope = ScopePattern.Match(input);
 
@@ -117,17 +125,22 @@ public static class ConventionalCommitParser
         return "";
     }
 
-    private static string ValidateType(string value, ValidationResult validationResult)
+    private string ValidateType(string value, ValidationResult validationResult)
     {
-        throw new NotImplementedException();
+        if (!CommitTypes.ContainsKey(value))
+        {
+            validationResult.Errors.Add(new TypeDoesNotExistError(value, CommitTypes));
+            return "";
+        }
+        return value;
     }
 
-    private static string ValidateSubject(string value, ValidationResult validationResult)
+    private string ValidateSubject(string value, ValidationResult validationResult)
     {
-        throw new NotImplementedException();
+        return "";
     }
 
-    private static void ValidateRemaining(ConventionalCommit conventionalCommit, string[] remainingLines)
+    private void ValidateRemaining(ConventionalCommit conventionalCommit, string[] remainingLines)
     {
 
         if (remainingLines.Length < 1) return;
@@ -156,10 +169,4 @@ public static class ConventionalCommitParser
         }
     }
 
-}
-
-public class HeaderValidationResult
-{
-    public List<string> Errors { get; set; } = new();
-    public List<string> Warnings { get; set; } = new();
 }

@@ -10,4 +10,6 @@ builder.Configuration.Sources.Clear();
 IHostEnvironment env = builder.Environment;
 
 builder.Configuration
-    .AddJsonFile("commitTypes.json", optional: true, reloadOnChange: true);
+    .AddJsonFile("settings.json", optional: true, reloadOnChange: true);
+
+builder.Services.AddSingleton<ConventionalCommitParser>();

@@ -4,16 +4,30 @@ using FluentResults.Extensions.FluentAssertions;
 using commitizen.NET.Lib;
 using Xunit;
 using FluentResults;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using System.Configuration;
 
 namespace commitizen.NET.Tests;
 
 public class ConventionalCommitParserTests
 {
+    private readonly Dictionary<string, CommitType> commitTypes = default!;
+
+    public ConventionalCommitParserTests()
+    {
+        commitTypes = TestConfigHelper.GetIConfigurationRoot()
+            .GetRequiredSection("DefaultSettings:CommitTypes").Get<Dictionary<string, CommitType>>()!;
+        // settings = configuration.GetRequiredSection("DefaultSettings").Get;
+        // .AsEnumerable()
+        // .ToDictionary(x => x.Key, x => x.Value);
+    }
     [Fact]
     public void ShouldParseTypeScopeAndSubjectFromSingleLineCommitMessage()
     {
+        var parser = new ConventionalCommitParser(commitTypes);
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy event on scope destruction");
-        var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
+        var conventionalCommit = parser.Parse(testCommit);
 
         conventionalCommit.Header.Type.Should().Be("feat");
         conventionalCommit.Header.Scope.Should().Be("scope");
@@ -23,8 +37,10 @@ public class ConventionalCommitParserTests
     [Fact]
     public void ShouldUseFullHeaderAsSubjectIfNoTypeWasGiven()
     {
+        var parser = new ConventionalCommitParser(commitTypes);
+
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event on scope destruction");
-        var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
+        var conventionalCommit = parser.Parse(testCommit);
 
         conventionalCommit.Header.Subject.Should().Be(testCommit.Message);
     }
@@ -32,8 +48,10 @@ public class ConventionalCommitParserTests
     [Fact]
     public void ShouldUseFullHeaderAsSubjectIfNoTypeWasGivenButSubjectUsesColon()
     {
+        var parser = new ConventionalCommitParser(commitTypes);
+
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event: on scope destruction");
-        var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
+        var conventionalCommit = parser.Parse(testCommit);
 
         conventionalCommit.Header.Subject.Should().Be(testCommit.Message);
     }
@@ -41,8 +59,10 @@ public class ConventionalCommitParserTests
     [Fact]
     public void ShouldParseTypeScopeAndSubjectFromSingleLineCommitMessageIfSubjectUsesColon()
     {
+        var parser = new ConventionalCommitParser(commitTypes);
+
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy: event on scope destruction");
-        var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
+        var conventionalCommit = parser.Parse(testCommit);
 
         conventionalCommit.Header.Type.Should().Be("feat");
         conventionalCommit.Header.Scope.Should().Be("scope");
@@ -52,8 +72,10 @@ public class ConventionalCommitParserTests
     [Fact]
     public void ShouldExtractCommitNotes()
     {
+        var parser = new ConventionalCommitParser(commitTypes);
+
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy: event on scope destruction\nBREAKING CHANGE: this will break rc1 compatibility");
-        var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
+        var conventionalCommit = parser.Parse(testCommit);
 
         Assert.Single(conventionalCommit.Footers);
 
@@ -67,8 +89,10 @@ public class ConventionalCommitParserTests
     [InlineData("feat(scope)!: broadcast $destroy: event on scope destruction")]
     public void ShouldSupportExclamationMarkToSignifyingBreakingChanges(string commitMessage)
     {
+        var parser = new ConventionalCommitParser(commitTypes);
+
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
-        var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
+        var conventionalCommit = parser.Parse(testCommit);
 
         conventionalCommit.Footers.Should().HaveCount(1, "single line commits can only have 1 message");
         conventionalCommit.Footers[0].Title.Should().Be("BREAKING CHANGE");
@@ -87,8 +111,10 @@ public class ConventionalCommitParserTests
     [InlineData("fix: #64 subject #65 text. (#66)", new[] { "64", "65", "66" })]
     public void ShouldExtractCommitIssues(string commitMessage, string[] expectedIssues)
     {
+        var parser = new ConventionalCommitParser(commitTypes);
+
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
-        var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
+        var conventionalCommit = parser.Parse(testCommit);
 
         Assert.Equal(conventionalCommit.Issues.Count, expectedIssues.Length);
 
@@ -108,8 +134,10 @@ feat!: Replace old button with new design
 BREAKING CHANGE: old button is gone gone gone!!!!!!!
 """;
 
+        var parser = new ConventionalCommitParser(commitTypes);
+
         var testCommit = new TestCommit("", commitMessage);
-        var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
+        var conventionalCommit = parser.Parse(testCommit);
 
         conventionalCommit.Footers.Count.Should().Be(1);
     }
@@ -131,8 +159,10 @@ Reviewed-by: Z
 Refs: #123
 """;
 
+        var parser = new ConventionalCommitParser(commitTypes);
+
         var testCommit = new TestCommit("", commitMessage);
-        var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
+        var conventionalCommit = parser.Parse(testCommit);
 
         conventionalCommit.Footers.Should().HaveCount(3);
     }
@@ -144,8 +174,10 @@ Refs: #123
     public void ShouldFailValidationWhenHeaderTypeIsInvalid(string commitMessage)
     {
         var testCommit = new TestCommit("", commitMessage);
+        var parser = new ConventionalCommitParser(commitTypes);
 
-        Result<ConventionalCommit> conventionalCommit = ConventionalCommitParser.Validate(testCommit);
+
+        Result<ConventionalCommit> conventionalCommit = parser.Validate(testCommit);
 
         conventionalCommit.Should().BeFailure();
     }

@@ -1,8 +1,8 @@
 using FluentResults;
 
-namespace commitizen.NET;
+namespace commitizen.NET.Lib;
 
-internal class InvalidConventionalCommitSyntaxError : Error
+public class InvalidConventionalCommitSyntaxError : Error
 {
     private readonly string correctSyntax = """
 <type>[optional scope]: <description>

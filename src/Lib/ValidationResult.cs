@@ -1,3 +1,4 @@
+using commitizen.NET.Lib.Errors;
 using FluentResults;
 
 namespace commitizen.NET.Lib;

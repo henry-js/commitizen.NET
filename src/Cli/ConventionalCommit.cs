@@ -3,7 +3,7 @@
 public class ConventionalCommit
 {
     public Header Header { get; set; } = new Header();
-    public string Body { get; set; }
+    public string? Body { get; set; }
     public string? Sha { get; set; }
     public List<ConventionalCommitNote> Footers { get; set; } = [];
     public List<ConventionalCommitIssue> Issues { get; set; } = [];
@@ -18,10 +18,7 @@ public class Footer : ConventionalCommitNote
 
 public class Body
 {
-    public Body()
-    {
-    }
-    public string[] Paragraphs { get; set; }
+    public string[] Paragraphs { get; set; } = [];
 }
 
 public class Header
@@ -33,14 +30,14 @@ public class Header
 
 public class ConventionalCommitNote
 {
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
 
-    public string Text { get; set; }
+    public string Text { get; set; } = string.Empty;
 }
 
 public class ConventionalCommitIssue
 {
-    public string Token { get; set; }
+    public string Token { get; set; } = string.Empty;
 
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 }
