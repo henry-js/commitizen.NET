@@ -1,4 +1,4 @@
-﻿namespace commitizen.NET;
+﻿namespace commitizen.NET.Lib;
 
 public class ConventionalCommit
 {

@@ -1,6 +1,6 @@
 {
-    "DefaultSettings": {
-        "CommitTypes": {
+    "LintingSettings": {
+        "Types": {
             "feat": {
                 "Description": "A new feature",
                 "Title": "Features",

@@ -1,79 +1,19 @@
 using System.Text.RegularExpressions;
-using commitizen.NET.Lib;
 using FluentResults;
-using Microsoft.Extensions.Configuration;
 using static commitizen.NET.Lib.DefaultPatterns;
 
-namespace commitizen.NET;
+namespace commitizen.NET.Lib;
 
-public class ConventionalCommitParser
+public class ConventionalCommitParser : IConventionalCommitParser
 {
-    public ConventionalCommitParser(Dictionary<string, CommitType> commitTypes)
+    public ConventionalCommitParser(LintingSettings defaultSettings)
     {
-        CommitTypes = commitTypes;
+        DefaultSettings = defaultSettings;
     }
 
     private readonly string[] NoteKeywords = ["BREAKING CHANGE"];
 
-    public Dictionary<string, CommitType> CommitTypes { get; }
-
-    // public List<ConventionalCommit> Parse(List<Commit> commits)
-    // {
-    //     return commits.ConvertAll(Parse);
-    // }
-
-    // public ConventionalCommit Parse(Commit commit)
-    // {
-    //     var conventionalCommit = new ConventionalCommit();
-
-    //     var header = commit.MessageLines[0];
-
-    //     ValidateHeader(conventionalCommit, header);
-
-    //     if (commit.MessageLines.Length < 2) return conventionalCommit;
-
-    //     ValidateRemaining(conventionalCommit, commit.MessageLines[1..]);
-
-    //     return conventionalCommit;
-
-    //     void ValidateHeader(ConventionalCommit conventionalCommit, string header)
-    //     {
-    //         var match = HeaderPattern.Match(header);
-    //         if (match.Success)
-    //         {
-    //             conventionalCommit.Header = new Header()
-    //             {
-    //                 Scope = match.Groups["scope"].Value,
-    //                 Type = match.Groups["type"].Value,
-    //                 Subject = match.Groups["subject"].Value,
-    //             };
-
-    //             if (match.Groups["breakingChangeMarker"].Success)
-    //             {
-    //                 conventionalCommit.Footers.Add(new ConventionalCommitNote
-    //                 {
-    //                     Title = "BREAKING CHANGE",
-    //                     Text = string.Empty
-    //                 });
-    //             }
-
-    //             var issuesMatch = IssuesPattern.Matches(conventionalCommit.Header.Subject);
-    //             foreach (var issueMatch in issuesMatch.Cast<Match>())
-    //             {
-    //                 conventionalCommit.Issues.Add(
-    //                     new ConventionalCommitIssue
-    //                     {
-    //                         Token = issueMatch.Groups["issueToken"].Value,
-    //                         Id = issueMatch.Groups["issueId"].Value,
-    //                     });
-    //             }
-    //         }
-    //         else
-    //         {
-    //             // conventionalCommit.Header.Subject = header;
-    //         }
-    //     }
-    // }
+    private LintingSettings DefaultSettings { get; }
 
     public Result<ConventionalCommit> Validate(Commit commit)
     {
@@ -164,9 +104,9 @@ public class ConventionalCommitParser
 
     private string ValidateType(string value, ValidationResult validationResult)
     {
-        if (!CommitTypes.ContainsKey(value))
+        if (!DefaultSettings.Types.ContainsKey(value))
         {
-            validationResult.Errors.Add(new TypeDoesNotExistError(value, CommitTypes));
+            validationResult.Errors.Add(new TypeDoesNotExistError(value, DefaultSettings.Types));
             return "";
         }
         return value;
@@ -206,4 +146,9 @@ public class ConventionalCommitParser
         }
     }
 
+}
+
+public interface IConventionalCommitParser
+{
+    public Result<ConventionalCommit> Validate(Commit commit);
 }

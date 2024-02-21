@@ -10,9 +10,11 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/commitizen.NET/bin/Debug/net8.0/commitizen.NET.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/src/commitizen.NET",
+            "program": "${workspaceFolder}/src/Cli/bin/Debug/net8.0/czn.dll",
+            "args": [
+                "feat: completed work on feature -h"
+            ],
+            "cwd": "${workspaceFolder}/src/Cli",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false
