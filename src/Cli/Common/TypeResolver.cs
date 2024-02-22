@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Hosting;
 using Spectre.Console.Cli;
 
-namespace commitizen.NET.Cli.Common;
+namespace commitizen.NET.Cli;
 
 public sealed class TypeResolver : ITypeResolver, IDisposable
 {

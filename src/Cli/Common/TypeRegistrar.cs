@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Spectre.Console.Cli;
 
-namespace commitizen.NET.Cli.Common;
+namespace commitizen.NET.Cli;
 
 public sealed class TypeRegistrar : ITypeRegistrar
 {
@@ -19,7 +19,7 @@ public sealed class TypeRegistrar : ITypeRegistrar
         return new TypeResolver(_builder.Build());
     }
 
-    public void Register(Type service, /* [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] */ Type implementation)
+    public void Register(Type service, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementation)
     {
         _builder.Services.AddSingleton(service, implementation);
     }

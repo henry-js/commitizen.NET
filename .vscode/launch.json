@@ -10,11 +10,27 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/Cli/bin/Debug/net8.0/czn.dll",
+            "program": "${workspaceFolder}/.artifacts/bin/Cli/debug/czn.dll",
             "args": [
-                "feat: completed work on feature -h"
+                "-h"
             ],
             "cwd": "${workspaceFolder}/src/Cli",
+            // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            // Use IntelliSense to find out which attributes exist for C# debugging
+            // Use hover for the description of the existing attributes
+            // For further information visit https://github.com/dotnet/vscode-csharp/blob/main/debugger-launchjson.md
+            "name": "Debug NUKE",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/build/bin/Debug/_build.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/build",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false

@@ -1,6 +1,4 @@
-﻿using LibGit2Sharp;
-
-namespace commitizen.NET.Lib;
+﻿namespace commitizen.NET.Lib;
 
 public class Commit //: LibGit2Sharp.Commit, ICommit
 {

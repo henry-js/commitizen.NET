@@ -1,11 +1,14 @@
 using commitizen.NET.Lib;
+using FluentResults;
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace commitizen.NET.Cli;
 
-internal class LintCommand(IConventionalCommitParser parser) : Command<LintCommand.Settings>
+internal class LintCommand(IConventionalCommitParser parser, IAnsiConsole console) : Command<LintCommand.Settings>
 {
     private readonly IConventionalCommitParser parser = parser;
+    private readonly IAnsiConsole console = console;
 
     public override int Execute(CommandContext context, Settings settings)
     {
@@ -19,11 +22,17 @@ internal class LintCommand(IConventionalCommitParser parser) : Command<LintComma
         {
 
         }
+        else
+        {
+            console.WriteInput(result);
+            console.WriteErrors(result);
+        }
         return 01;
     }
+
     internal class Settings : CommandSettings
     {
-        [CommandArgument(0, "[Name]")]
+        [CommandArgument(0, "[message]")]
         public string? CommitMessage { get; set; }
     }
 }
