@@ -77,5 +77,12 @@ class Build : NukeBuild
                                     .EnableNoRestore());
             }
             );
+    Target Pack => _ => _
+        .Requires(() => Repository.IsOnDevelopBranch() || Repository.IsOnMainOrMasterBranch())
+        .WhenSkipped(DependencyBehavior.Skip)
+        .DependsOn(Compile)
+        .Executes(() =>
+        {
 
+        });
 }
