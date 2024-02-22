@@ -43,6 +43,7 @@ class Build : NukeBuild
     Target Print => _ => _
     .Executes(() =>
     {
+        Log.Information("Minver Version = {Value}", MinVer.Version);
         Log.Information("Commit = {Value}", Repository.Commit);
         Log.Information("Branch = {Value}", Repository.Branch);
         Log.Information("Tags = {Value}", Repository.Tags);
@@ -78,11 +79,22 @@ class Build : NukeBuild
             }
             );
     Target Pack => _ => _
-        .Requires(() => Repository.IsOnDevelopBranch() || Repository.IsOnMainOrMasterBranch())
+        .Requires(() => RepoIsMainOrDevelop)
         .WhenSkipped(DependencyBehavior.Skip)
         .DependsOn(Compile)
         .Executes(() =>
         {
 
         });
+    Target Publish => _ => _
+        .Requires(() => RepoToBeMainOrDevelop())
+        .WhenSkipped(DependencyBehavior.Skip)
+        .DependsOn(Compile)
+        .Executes(() =>
+        {
+
+        });
+    bool RepoToBeMainOrDevelop() => Repository.IsOnDevelopBranch() || Repository.IsOnMainOrMasterBranch();
+
+    bool RepoIsMainOrDevelop => Repository.IsOnDevelopBranch() || Repository.IsOnMainOrMasterBranch();
 }
