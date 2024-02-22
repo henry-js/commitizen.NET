@@ -74,7 +74,9 @@
             "enum": [
               "Clean",
               "Compile",
+              "Pack",
               "Print",
+              "Publish",
               "Restore"
             ]
           }
@@ -91,7 +93,9 @@
             "enum": [
               "Clean",
               "Compile",
+              "Pack",
               "Print",
+              "Publish",
               "Restore"
             ]
           }
