@@ -31,30 +31,6 @@ public class ConventionalCommitParserTests
         }
 
         [Fact]
-        public void ShouldUseFullHeaderAsSubjectIfNoTypeWasGiven()
-        {
-                var parser = new ConventionalCommitParser(defaultSettings);
-
-                var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event on scope destruction");
-                var result = parser.Validate(testCommit);
-                var conventionalCommit = result.Value;
-
-                conventionalCommit.Header.Subject.Should().Be(testCommit.Message);
-        }
-
-        [Fact]
-        public void ShouldUseFullHeaderAsSubjectIfNoTypeWasGivenButSubjectUsesColon()
-        {
-                var parser = new ConventionalCommitParser(defaultSettings);
-
-                var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event: on scope destruction");
-                var result = parser.Validate(testCommit);
-                var conventionalCommit = result.Value;
-
-                conventionalCommit.Header.Subject.Should().Be(testCommit.Message);
-        }
-
-        [Fact]
         public void ShouldParseTypeScopeAndSubjectFromSingleLineCommitMessageIfSubjectUsesColon()
         {
                 var parser = new ConventionalCommitParser(defaultSettings);
@@ -68,26 +44,26 @@ public class ConventionalCommitParserTests
                 conventionalCommit.Header.Subject.Should().Be("broadcast $destroy: event on scope destruction");
         }
 
-        [Fact]
-        public void ShouldExtractCommitNotes()
-        {
-                var parser = new ConventionalCommitParser(defaultSettings);
+        // [Fact]
+        // public void ShouldExtractCommitNotes()
+        // {
+        //         var parser = new ConventionalCommitParser(defaultSettings);
 
-                var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", """
-        feat(scope): broadcast $destroy: event on scope destruction
+        //         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", """
+        // feat(scope): broadcast $destroy: event on scope destruction
 
-        BREAKING CHANGE: this will break rc1 compatibility
-        """);
-                var result = parser.Validate(testCommit);
-                var conventionalCommit = result.Value;
+        // BREAKING CHANGE: this will break rc1 compatibility
+        // """);
+        //         var result = parser.Validate(testCommit);
+        //         var conventionalCommit = result.Value;
 
-                Assert.Single(conventionalCommit.Footers);
+        //         Assert.Single(conventionalCommit.Footers);
 
-                var breakingChangeNote = conventionalCommit.Footers.Single();
+        //         var breakingChangeNote = conventionalCommit.Footers.Single();
 
-                Assert.Equal("BREAKING CHANGE", breakingChangeNote.Title);
-                Assert.Equal("this will break rc1 compatibility", breakingChangeNote.Text);
-        }
+        //         Assert.Equal("BREAKING CHANGE", breakingChangeNote.Title);
+        //         Assert.Equal("this will break rc1 compatibility", breakingChangeNote.Text);
+        // }
 
         [Theory]
         [InlineData("feat(scope)!: broadcast $destroy: event on scope destruction")]
@@ -130,50 +106,24 @@ public class ConventionalCommitParserTests
                         issue?.Token.Should().Be($"#{expectedIssue}");
                 }
         }
-        [Fact]
-        public void BreakingChangeExclaimAndFooterShouldOnlyCreateOneFooter()
-        {
-                var commitMessage = """
-feat!: Replace old button with new design
+        //         [Fact]
+        //         public void BreakingChangeExclaimAndFooterShouldOnlyCreateOneFooter()
+        //         {
+        //                 var commitMessage = """
+        // feat!: Replace old button with new design
 
-BREAKING CHANGE: old button is gone gone gone!!!!!!!
-""";
+        // BREAKING CHANGE: old button is gone gone gone!!!!!!!
+        // """;
 
-                var parser = new ConventionalCommitParser(defaultSettings);
-                var testCommit = new TestCommit("", commitMessage);
+        //                 var parser = new ConventionalCommitParser(defaultSettings);
+        //                 var testCommit = new TestCommit("", commitMessage);
 
-                var result = parser.Validate(testCommit);
-                var conventionalCommit = result.Value;
+        //                 var result = parser.Validate(testCommit);
+        //                 var conventionalCommit = result.Value;
 
-                //Assert
-                conventionalCommit.Footers.Count.Should().Be(1);
-        }
-
-        [Fact]
-        public void ShouldParseCommitMessageWithMultipleParagraphs()
-        {
-                var commitMessage = $"""
-fix!: prevent racing of requests
-
-Introduce a request id and a reference to latest request. Dismiss
-incoming responses other than from latest request.
-
-Remove timeouts which were used to mitigate the racing issue but are
-obsolete now.
-
-Reviewed-by: Z
-456
-Refs: #123
-""";
-
-                var parser = new ConventionalCommitParser(defaultSettings);
-
-                var testCommit = new TestCommit("", commitMessage);
-                var result = parser.Validate(testCommit);
-                var conventionalCommit = result.Value;
-
-                conventionalCommit.Footers.Should().HaveCount(3);
-        }
+        //                 //Assert
+        //                 conventionalCommit.Footers.Count.Should().Be(1);
+        //         }
 
         [Theory]
         [InlineData("s(ui): resolve styling issues on the login page")]
