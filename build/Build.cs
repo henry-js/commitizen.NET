@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Nuke.Common;
 using Nuke.Common.CI;
+using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Execution;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
@@ -19,7 +20,11 @@ using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
 
-
+[GitHubActions(
+    "continuous",
+    GitHubActionsImage.UbuntuLatest,
+    On = [GitHubActionsTrigger.Push],
+    InvokedTargets = [nameof(Compile)])]
 class Build : NukeBuild
 {
     /// Support plugins are available for:
