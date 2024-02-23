@@ -8,6 +8,7 @@ using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
+using Nuke.Common.Tools.Coverlet;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.MinVer;
 using Nuke.Common.Utilities.Collections;
@@ -16,6 +17,7 @@ using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
+using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
 
 
 class Build : NukeBuild
@@ -34,9 +36,9 @@ class Build : NukeBuild
     [Solution(GenerateProjects = true)] readonly Solution Solution;
     [GitRepository] readonly GitRepository Repository;
     [MinVer] readonly MinVer MinVer;
-    AbsolutePath OutputDirectory => RootDirectory / ".artifacts";
+    AbsolutePath ProjectDirectory => SourceDirectory / "Cli";
+    AbsolutePath ArtifactsDirectory => RootDirectory / ".artifacts";
     AbsolutePath SourceDirectory => RootDirectory / "src";
-    AbsolutePath CliDirectory => SourceDirectory / "Cli";
     AbsolutePath TestDirectory => RootDirectory / "tests" / "Dashboard.NET.Tests";
     IEnumerable<string> Projects => Solution.AllProjects.Select(x => x.Name);
 
@@ -58,26 +60,47 @@ class Build : NukeBuild
     });
 
     Target Clean => _ => _
-        .Before(Restore)
         .Executes(() =>
         {
+            ArtifactsDirectory.CreateOrCleanDirectory();
+
         });
 
     Target Restore => _ => _
+    .After(Clean)
         .Executes(() =>
         {
+            DotNetRestore(c => c.SetForce(true).SetProjectFile(Solution.Directory));
         });
 
     Target Compile => _ => _
-        .DependsOn(Restore)
+        .DependsOn(Clean, Restore)
         .Executes(() =>
             {
-                Log.Information("Root Directory: {Value}", RootDirectory);
+                Log.Information("Building version {Value}", MinVer.Version);
                 DotNetBuild(settings =>
-                    settings.SetProjectFile(CliDirectory)
-                                    .EnableNoRestore());
-            }
-            );
+                    settings.SetProjectFile(ProjectDirectory)
+                            .EnableNoRestore());
+            });
+    IReadOnlyCollection<Output> Outputs;
+    Target Test => _ => _
+        .TriggeredBy(Compile)
+        .Executes(() =>
+        {
+            Outputs = DotNetTest(config =>
+                config.EnableNoRestore()
+                      .EnableNoBuild()
+                      .SetDataCollector("XPlat Code Coverage")
+                      .SetResultsDirectory(RootDirectory / "TestResults"));
+            // Log.Information($"Outputs: {Outputs.Count}");
+
+            var reports = (RootDirectory / "TestResults").GetFiles();
+            // ReportGenerator(config =>
+            // {
+            //     config.AddReports
+            // });
+        });
+
     Target Pack => _ => _
         .Requires(() => RepoIsMainOrDevelop)
         .WhenSkipped(DependencyBehavior.Skip)
@@ -87,14 +110,12 @@ class Build : NukeBuild
 
         });
     Target Publish => _ => _
-        .Requires(() => RepoToBeMainOrDevelop())
+        .Requires(() => RepoIsMainOrDevelop)
         .WhenSkipped(DependencyBehavior.Skip)
         .DependsOn(Compile)
         .Executes(() =>
         {
 
         });
-    bool RepoToBeMainOrDevelop() => Repository.IsOnDevelopBranch() || Repository.IsOnMainOrMasterBranch();
-
     bool RepoIsMainOrDevelop => Repository.IsOnDevelopBranch() || Repository.IsOnMainOrMasterBranch();
 }

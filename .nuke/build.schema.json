@@ -77,7 +77,8 @@
               "Pack",
               "Print",
               "Publish",
-              "Restore"
+              "Restore",
+              "Test"
             ]
           }
         },
@@ -96,7 +97,8 @@
               "Pack",
               "Print",
               "Publish",
-              "Restore"
+              "Restore",
+              "Test"
             ]
           }
         },
