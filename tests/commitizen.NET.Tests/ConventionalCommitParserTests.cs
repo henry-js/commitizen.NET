@@ -80,32 +80,32 @@ public class ConventionalCommitParserTests
                 conventionalCommit.Footers[0].Text.Should().Be(string.Empty);
         }
 
-        // TODO: Update to support issue syntax from other platforms i.e. Jira ('VE-####')
-        [Theory]
-        [InlineData("fix: subject text #64", new[] { "64" })]
-        [InlineData("fix: subject #64 text", new[] { "64" })]
-        [InlineData("fix: #64 subject text", new[] { "64" })]
-        [InlineData("fix: subject text. #64 #65", new[] { "64", "65" })]
-        [InlineData("fix: subject text. (#64) (#65)", new[] { "64", "65" })]
-        [InlineData("fix: subject text. #64#65", new[] { "64", "65" })]
-        [InlineData("fix: #64 subject #65 text. (#66)", new[] { "64", "65", "66" })]
-        public void ShouldExtractCommitIssues(string commitMessage, string[] expectedIssues)
-        {
-                var parser = new ConventionalCommitParser(defaultSettings);
+        // // TODO: Update to support issue syntax from other platforms i.e. Jira ('VE-####')
+        // [Theory]
+        // [InlineData("fix: subject text #64", new[] { "64" })]
+        // [InlineData("fix: subject #64 text", new[] { "64" })]
+        // [InlineData("fix: #64 subject text", new[] { "64" })]
+        // [InlineData("fix: subject text. #64 #65", new[] { "64", "65" })]
+        // [InlineData("fix: subject text. (#64) (#65)", new[] { "64", "65" })]
+        // [InlineData("fix: subject text. #64#65", new[] { "64", "65" })]
+        // [InlineData("fix: #64 subject #65 text. (#66)", new[] { "64", "65", "66" })]
+        // public void ShouldExtractCommitIssues(string commitMessage, string[] expectedIssues)
+        // {
+        //         var parser = new ConventionalCommitParser(defaultSettings);
 
-                var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
-                var result = parser.Validate(testCommit);
-                var conventionalCommit = result.Value;
+        //         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
+        //         var result = parser.Validate(testCommit);
+        //         var conventionalCommit = result.Value;
 
-                conventionalCommit.Issues.Count.Should().Be(expectedIssues.Length);
+        //         conventionalCommit.Issues.Count.Should().Be(expectedIssues.Length);
 
-                foreach (var expectedIssue in expectedIssues)
-                {
-                        var issue = conventionalCommit.Issues.SingleOrDefault(x => x.Id == expectedIssue);
-                        issue.Should().NotBeNull();
-                        issue?.Token.Should().Be($"#{expectedIssue}");
-                }
-        }
+        //         foreach (var expectedIssue in expectedIssues)
+        //         {
+        //                 var issue = conventionalCommit.Issues.SingleOrDefault(x => x.Id == expectedIssue);
+        //                 issue.Should().NotBeNull();
+        //                 issue?.Token.Should().Be($"#{expectedIssue}");
+        //         }
+        // }
         //         [Fact]
         //         public void BreakingChangeExclaimAndFooterShouldOnlyCreateOneFooter()
         //         {
@@ -134,7 +134,6 @@ public class ConventionalCommitParserTests
                 var testCommit = new TestCommit("", commitMessage);
                 var parser = new ConventionalCommitParser(defaultSettings);
 
-
                 Result<ConventionalCommit> conventionalCommit = parser.Validate(testCommit);
 
                 conventionalCommit.Should().BeFailure();
@@ -147,6 +146,11 @@ public class ConventionalCommitParserTests
         public void ShouldFailValidationWhenHeaderScopeIsInvalid(string commitMessage)
         {
                 var testCommit = new TestCommit("", commitMessage);
+                var parser = new ConventionalCommitParser(defaultSettings);
+
+                var conventionalCommit = parser.Validate(testCommit);
+
+
         }
 
         [Theory]

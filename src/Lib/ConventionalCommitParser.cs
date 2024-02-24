@@ -48,18 +48,15 @@ public class ConventionalCommitParser : IConventionalCommitParser
         var header = commit.MessageLines[0];
 
         var match = HeaderPattern.Match(header);
-        if (!match.Success)
-        {
-            return Result.Fail(new InvalidConventionalCommitSyntaxError(header));
-        }
-        var vr = new ValidationResult();
+
+        if (!match.Success) return Result.Fail(new InvalidConventionalCommitSyntaxError(header));
 
         var conventionalCommit = new ConventionalCommit()
         {
             Header = new()
             {
-                Type = ValidateType(match.Groups["type"].Value, vr),
-                Scope = ValidateScope(match.Groups["scope"].Value, vr),
+                Type = match.Groups["type"].Value,
+                Scope = match.Groups["scope"].Value,
                 Subject = match.Groups["subject"].Value,
             },
             Original = commit.Message
@@ -74,6 +71,8 @@ public class ConventionalCommitParser : IConventionalCommitParser
             });
         }
 
+        ValidationResult vr = GetErrors(conventionalCommit);
+
         if (vr.Errors.Count > 0)
         {
             return Result.Fail(vr.Errors)
@@ -85,34 +84,39 @@ public class ConventionalCommitParser : IConventionalCommitParser
             .WithSuccesses(vr.Warnings);
     }
 
-    private string ValidateScope(string input, ValidationResult validationResult)
+    private ValidationResult GetErrors(ConventionalCommit conCommit)
     {
-        var scope = ScopePattern.Match(input);
+        var validationResult = new ValidationResult();
 
-        if (scope.Success)
+        if (!DefaultSettings.Types.TryGetValue(conCommit.Header.Type, out var cti))
         {
-            return input;
+            validationResult.Errors.Add(new TypeDoesNotExistError(conCommit.Header.Type, DefaultSettings.Types));
         }
 
-        return input;
+        return validationResult;
     }
 
-    private string ValidateType(string value, ValidationResult validationResult)
-    {
-        if (!DefaultSettings.Types.ContainsKey(value))
-        {
-            validationResult.Errors.Add(new TypeDoesNotExistError(value, DefaultSettings.Types));
-            return "";
-        }
-        var commitTypeInfo = DefaultSettings.Types[value];
+    // private string ValidateScope(string input, ValidationResult validationResult)
+    // {
+    //     var scope = ScopePattern.Match(input);
 
-        return $"{commitTypeInfo.Emoji} {value}";
-    }
+    //     if (scope.Success)
+    //     {
+    //         return input;
+    //     }
 
-    private string ValidateSubject(string value, ValidationResult validationResult)
-    {
-        return value;
-    }
+    //     return input;
+    // }
+
+    // private string ValidateType(string value, ValidationResult validationResult)
+    // {
+
+    // }
+
+    // private string ValidateSubject(string value, ValidationResult validationResult)
+    // {
+    //     return value;
+    // }
 
     private void ValidateRemaining(Result<ConventionalCommit> result)
     {
