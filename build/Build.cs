@@ -43,8 +43,10 @@ class Build : NukeBuild
     [MinVer] readonly MinVer MinVer;
     AbsolutePath ProjectDirectory => SourceDirectory / "Cli";
     AbsolutePath ArtifactsDirectory => RootDirectory / ".artifacts";
+    AbsolutePath PublishDirectory => RootDirectory / "publish";
+    AbsolutePath PackDirectory => RootDirectory / "packages";
     AbsolutePath SourceDirectory => RootDirectory / "src";
-    AbsolutePath TestDirectory => RootDirectory / "tests" / "Dashboard.NET.Tests";
+    AbsolutePath TestDirectory => RootDirectory / "tests" / "commitizen.NET.Tests";
     IEnumerable<string> Projects => Solution.AllProjects.Select(x => x.Name);
 
     Target Print => _ => _
@@ -68,14 +70,15 @@ class Build : NukeBuild
         .Executes(() =>
         {
             ArtifactsDirectory.CreateOrCleanDirectory();
-
         });
 
     Target Restore => _ => _
     .After(Clean)
         .Executes(() =>
         {
-            DotNetRestore(c => c.SetForce(true).SetProjectFile(Solution.Directory));
+            DotNetRestore(c =>
+            c.SetForce(true)
+                .SetProjectFile(Solution.Directory));
         });
 
     Target Compile => _ => _
@@ -85,19 +88,22 @@ class Build : NukeBuild
                 Log.Information("Building version {Value}", MinVer.Version);
                 DotNetBuild(settings =>
                     settings.SetProjectFile(ProjectDirectory)
-                            .EnableNoRestore());
+                        .SetRuntime("win-x64")
+                        .EnableNoRestore());
             });
     IReadOnlyCollection<Output> Outputs;
     Target Test => _ => _
         .TriggeredBy(Compile)
+        .Before(Publish, Pack)
         .Executes(() =>
         {
             Outputs = DotNetTest(config =>
-                config.EnableNoRestore()
-                      .EnableNoBuild()
-                      .SetDataCollector("XPlat Code Coverage")
-                      .SetResultsDirectory(RootDirectory / "TestResults"));
-            // Log.Information($"Outputs: {Outputs.Count}");
+                config.SetProjectFile(TestDirectory)
+                    .EnableNoBuild()
+                    .EnableNoRestore()
+                    .SetDataCollector("XPlat Code Coverage")
+                    .SetResultsDirectory(RootDirectory / "TestResults"));
+            Log.Information($"Outputs: {Outputs.Count}");
 
             var reports = (RootDirectory / "TestResults").GetFiles();
             // ReportGenerator(config =>
@@ -120,7 +126,17 @@ class Build : NukeBuild
         .DependsOn(Compile)
         .Executes(() =>
         {
+            PublishDirectory.CreateOrCleanDirectory();
 
+            DotNetPublish(config =>
+                config.SetOutput(PublishDirectory)
+                    .SetProject(ProjectDirectory)
+                    .EnableSelfContained()
+                    .EnablePublishSingleFile()
+                    .EnableNoBuild()
+                    .EnableNoRestore()
+                    .SetRuntime("win-x64")
+            );
         });
     bool RepoIsMainOrDevelop => Repository.IsOnDevelopBranch() || Repository.IsOnMainOrMasterBranch();
 }
