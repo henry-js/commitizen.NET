@@ -1,6 +1,7 @@
-using System.Text.RegularExpressions;
-using FluentResults;
+using commitizen.NET.Lib.Validators;
 using static commitizen.NET.Lib.DefaultPatterns;
+using FluentResults;
+using System.Text.RegularExpressions;
 
 namespace commitizen.NET.Lib;
 
@@ -10,24 +11,39 @@ public class ConventionalCommitParser : IConventionalCommitParser
     {
         DefaultSettings = defaultSettings;
     }
+    private readonly string[] lineFeeds = ["\n", "\r\n", "\r"];
 
     private readonly string[] NoteKeywords = ["BREAKING CHANGE"];
 
     private LintingSettings DefaultSettings { get; }
 
-    public Result<ConventionalCommit> Validate(Commit commit)
+    public Result<ConventionalCommit> Parse(string msg)
     {
-        Result<ConventionalCommit> result = ValidateHeaderResult(commit);
+        string[] msgLines = msg.Split(lineFeeds, StringSplitOptions.None);
+        Result<Header> headerResult = ParseHeader(msgLines[0]);
 
-        if (!result.IsSuccess || commit.MessageLines.Length == 1)
-            return result;
+        var commitResult = headerResult.ToResult(h =>
+        new ConventionalCommit()
+        {
+            Header = h,
+            Original = msg
+        });
 
-        ValidateRemaining(result);
-        CheckForIssues(result);
-        return result;
+        if (commitResult.IsFailed)
+            return commitResult;
+
+        FindIssues(commitResult);
+
+        // if (msgLines.Length == 1)
+        return commitResult;
     }
 
-    private void CheckForIssues(Result<ConventionalCommit> result)
+    private Result<Body> ParseBody(string[] strings)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void FindIssues(Result<ConventionalCommit> result)
     {
         var conventionalCommit = result.Value;
         var issuesMatch = IssuesPattern.Matches(conventionalCommit.Original);
@@ -43,112 +59,31 @@ public class ConventionalCommitParser : IConventionalCommitParser
         }
     }
 
-    private Result<ConventionalCommit> ValidateHeaderResult(Commit commit)
+    private Result<Header> ParseHeader(string header)
     {
-        var header = commit.MessageLines[0];
-
         var match = HeaderPattern.Match(header);
 
-        if (!match.Success) return Result.Fail(new InvalidConventionalCommitSyntaxError(header));
+        if (!match.Success) return Result.Fail(new InvalidSyntaxError(header));
 
-        var conventionalCommit = new ConventionalCommit()
+        Header conventionalHeader = new()
         {
-            Header = new()
-            {
-                Type = match.Groups["type"].Value,
-                Scope = match.Groups["scope"].Value,
-                Subject = match.Groups["subject"].Value,
-            },
-            Original = commit.Message
+            Type = match.Groups["type"].Value,
+            Scope = match.Groups["scope"].Value,
+            Subject = match.Groups["subject"].Value,
+            IsBreakingChange = match.Groups["breakingChangeMarker"].Success
         };
 
-        if (match.Groups["breakingChangeMarker"].Success)
-        {
-            conventionalCommit.Footers.Add(new ConventionalCommitNote
-            {
-                Title = "BREAKING CHANGE",
-                Text = string.Empty
-            });
-        }
+        var validator = new HeaderValidator(DefaultSettings);
 
-        ValidationResult vr = GetErrors(conventionalCommit);
+        var results = validator.Validate(conventionalHeader);
 
-        if (vr.Errors.Count > 0)
-        {
-            return Result.Fail(vr.Errors)
-                .WithSuccesses(vr.Warnings)
-                .ToResult(conventionalCommit);
-        }
-
-        return Result.Ok(conventionalCommit)
-            .WithSuccesses(vr.Warnings);
-    }
-
-    private ValidationResult GetErrors(ConventionalCommit conCommit)
-    {
-        var validationResult = new ValidationResult();
-
-        if (!DefaultSettings.Types.TryGetValue(conCommit.Header.Type, out var cti))
-        {
-            validationResult.Errors.Add(new TypeDoesNotExistError(conCommit.Header.Type, DefaultSettings.Types));
-        }
-
-        return validationResult;
-    }
-
-    // private string ValidateScope(string input, ValidationResult validationResult)
-    // {
-    //     var scope = ScopePattern.Match(input);
-
-    //     if (scope.Success)
-    //     {
-    //         return input;
-    //     }
-
-    //     return input;
-    // }
-
-    // private string ValidateType(string value, ValidationResult validationResult)
-    // {
-
-    // }
-
-    // private string ValidateSubject(string value, ValidationResult validationResult)
-    // {
-    //     return value;
-    // }
-
-    private void ValidateRemaining(Result<ConventionalCommit> result)
-    {
-        var remainingLines = result.Value.Original.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
-        if (remainingLines.Length < 1) return;
-        // body is freeform
-        var bodyParagraphs = remainingLines[..^1];
-
-
-        var footerLines = remainingLines[^1];
-        var footerString = string.Join(Environment.NewLine, footerLines);
-        var footerMatches = FooterPattern.Matches(footerString);
-        if (footerMatches.Count > 0)
-        {
-            for (int i = 0; i < footerMatches.Count; i++)
-            {
-                var curMatch = footerMatches[i];
-                var valueStartIndex = curMatch.Groups["value"].Index;
-                var valueEndIndex = footerMatches.Count > i + 1 ? footerMatches[i + 1].Index : footerString.Length;
-                Console.WriteLine(curMatch.Value);
-                var matchedFooter = new Footer()
-                {
-                    Title = curMatch.Groups["token"].Value,
-                    Text = footerString[valueStartIndex..valueEndIndex].Trim(),
-                };
-                result.Value.Footers.Add(matchedFooter);
-            }
-        }
+        if (!results.IsValid)
+            return Result.Fail(results.Errors.Select(x => x.ErrorMessage));
+        return Result.Ok(conventionalHeader);
     }
 }
 
 public interface IConventionalCommitParser
 {
-    public Result<ConventionalCommit> Validate(Commit commit);
+    public Result<ConventionalCommit> Parse(string msg);
 }

@@ -14,20 +14,21 @@ internal class LintCommand(IConventionalCommitParser parser, IAnsiConsole consol
     {
         if (string.IsNullOrWhiteSpace(settings.CommitMessage)) throw new ArgumentNullException(nameof(settings.CommitMessage), "Null or empty value passed to cli");
 
-        var commit = new Commit("", settings.CommitMessage);
+        // var commit = new Commit("", settings.CommitMessage);
 
-        var result = parser.Validate(commit);
+        var result = parser.Parse(settings.CommitMessage);
 
+        console.WriteInput(settings.CommitMessage);
         if (result.IsSuccess)
         {
-
+            Console.WriteLine(settings.CommitMessage);
+            return 0;
         }
         else
         {
-            console.WriteInput(result);
             console.WriteErrors(result);
+            return 01;
         }
-        return 01;
     }
 
     internal class Settings : CommandSettings

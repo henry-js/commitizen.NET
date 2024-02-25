@@ -6,7 +6,6 @@ public class FluentResultExample : Error
 {
     protected FluentResultExample()
     {
-
     }
 }
 

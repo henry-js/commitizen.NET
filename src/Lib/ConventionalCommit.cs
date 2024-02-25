@@ -9,8 +9,7 @@ public class ConventionalCommit
     public List<ConventionalCommitIssue> Issues { get; set; } = [];
     public bool IsFeature => Header.Type == "feat";
     public bool IsFix => Header.Type == "fix";
-    public bool IsBreakingChange => Footers.Any(note => "BREAKING CHANGE".Equals(note.Title));
-
+    public bool IsBreakingChange => Footers.Any(note => "BREAKING CHANGE".Equals(note.Title)) || Header.IsBreakingChange;
     public required string Original { get; init; }
 }
 
@@ -28,6 +27,7 @@ public class Header
     public string Scope { get; init; } = string.Empty;
     public string Type { get; init; } = string.Empty;
     public string Subject { get; init; } = string.Empty;
+    public bool IsBreakingChange { get; internal set; }
 }
 
 public class ConventionalCommitNote

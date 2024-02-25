@@ -8,12 +8,13 @@ public static class ConsoleExtensions
     {
         foreach (var error in result.Errors)
         {
-            console.MarkupLine(error.Message);
+            console.WriteLine(error.Message);
         }
     }
 
-    public static void WriteInput(this IAnsiConsole console, Result<ConventionalCommit> result)
+    public static void WriteInput(this IAnsiConsole console, string input)
     {
-        throw new NotImplementedException();
+        var markup = Emoji.Replace($":inbox_tray: {input}");
+        console.MarkupLine(markup);
     }
 }

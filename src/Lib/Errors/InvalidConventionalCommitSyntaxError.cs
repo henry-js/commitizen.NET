@@ -2,7 +2,7 @@ using FluentResults;
 
 namespace commitizen.NET.Lib;
 
-public class InvalidConventionalCommitSyntaxError : Error
+public class InvalidSyntaxError : Error
 {
     private readonly string correctSyntax = """
 <type>[optional scope]: <description>
@@ -12,7 +12,7 @@ public class InvalidConventionalCommitSyntaxError : Error
 [optional footer(s)]
 """;
 
-    public InvalidConventionalCommitSyntaxError(string commitHeader)
+    public InvalidSyntaxError(string commitHeader)
         : base($"Invalid syntax: {commitHeader}.")
     {
         Metadata.Add(nameof(correctSyntax), correctSyntax);

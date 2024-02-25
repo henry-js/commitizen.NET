@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <DebugType>embedded</DebugType>
     <AssemblyName>czn</AssemblyName>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
 
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>czn</ToolCommandName>
@@ -30,7 +31,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="RulesEngine" Version="5.0.3" />
     <PackageReference Include="Spectre.Console.Cli" Version="0.48.0" />
   </ItemGroup>
 
