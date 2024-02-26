@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <PackageDownload Include="minver-cli" Version="[4.2.0]" />
+    <PackageDownload Include="ReportGenerator" Version="[5.2.2]" />
   </ItemGroup>
 
 </Project>

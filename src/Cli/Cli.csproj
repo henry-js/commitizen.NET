@@ -7,6 +7,8 @@
     <DebugType>embedded</DebugType>
     <AssemblyName>czn</AssemblyName>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishSelfContained>true</PublishSelfContained>
 
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>czn</ToolCommandName>

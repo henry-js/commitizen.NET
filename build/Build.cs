@@ -12,6 +12,7 @@ using Nuke.Common.Tooling;
 using Nuke.Common.Tools.Coverlet;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.MinVer;
+using Nuke.Common.Tools.ReportGenerator;
 using Nuke.Common.Utilities.Collections;
 using Serilog;
 using static Nuke.Common.EnvironmentInfo;
@@ -86,10 +87,13 @@ class Build : NukeBuild
         .Executes(() =>
             {
                 Log.Information("Building version {Value}", MinVer.Version);
-                DotNetBuild(settings =>
-                    settings.SetProjectFile(ProjectDirectory)
-                        .SetRuntime("win-x64")
-                        .EnableNoRestore());
+                DotNetBuild(_ => _
+                    .EnableSelfContained()
+                    .EnablePublishSingleFile()
+                    .SetProjectFile(ProjectDirectory)
+                    .SetConfiguration("Release")
+                    .SetRuntime("win-x64")
+                    .EnableNoRestore());
             });
     IReadOnlyCollection<Output> Outputs;
     Target Test => _ => _
@@ -97,19 +101,30 @@ class Build : NukeBuild
         .Before(Publish, Pack)
         .Executes(() =>
         {
-            Outputs = DotNetTest(config =>
-                config.SetProjectFile(TestDirectory)
-                    .EnableNoBuild()
-                    .EnableNoRestore()
-                    .SetDataCollector("XPlat Code Coverage")
-                    .SetResultsDirectory(RootDirectory / "TestResults"));
+            var ResultsDirectory = RootDirectory / "TestResults";
+            ResultsDirectory.CreateOrCleanDirectory();
+            Outputs = DotNetTest(_ => _
+                .SetProjectFile(TestDirectory)
+                .EnableNoBuild()
+                .EnableNoRestore()
+                .SetDataCollector("XPlat Code Coverage")
+                .SetResultsDirectory(ResultsDirectory)
+                .SetRunSetting(
+                    "DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.ExcludeByAttribute",
+                     "Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute")
+                );
+
             Log.Information($"Outputs: {Outputs.Count}");
 
-            var reports = (RootDirectory / "TestResults").GetFiles();
-            // ReportGenerator(config =>
-            // {
-            //     config.AddReports
-            // });
+            var coverageReport = (RootDirectory / "TestResults").GetFiles("coverage.cobertura.xml", 2).FirstOrDefault();
+
+            if (coverageReport is not null)
+            {
+                ReportGenerator(_ => _
+                    .AddReports(coverageReport)
+                    .SetTargetDirectory(ResultsDirectory / "coveragereport")
+                    );
+            }
         });
 
     Target Pack => _ => _
@@ -129,13 +144,14 @@ class Build : NukeBuild
             PublishDirectory.CreateOrCleanDirectory();
 
             DotNetPublish(config =>
-                config.SetOutput(PublishDirectory)
+                config
                     .SetProject(ProjectDirectory)
-                    .EnableSelfContained()
-                    .EnablePublishSingleFile()
-                    .EnableNoBuild()
-                    .EnableNoRestore()
                     .SetRuntime("win-x64")
+            .EnableSelfContained()
+            .EnablePublishSingleFile()
+            .EnableNoBuild()
+            .EnableNoRestore()
+            .SetRuntime("win-x64")
             );
         });
     bool RepoIsMainOrDevelop => Repository.IsOnDevelopBranch() || Repository.IsOnMainOrMasterBranch();
