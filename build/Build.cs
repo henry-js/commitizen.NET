@@ -105,8 +105,8 @@ class Build : NukeBuild
             ResultsDirectory.CreateOrCleanDirectory();
             Outputs = DotNetTest(_ => _
                 .SetProjectFile(TestDirectory)
-                .EnableNoBuild()
-                .EnableNoRestore()
+                // .EnableNoBuild()
+                // .EnableNoRestore()
                 .SetDataCollector("XPlat Code Coverage")
                 .SetResultsDirectory(ResultsDirectory)
                 .SetRunSetting(
