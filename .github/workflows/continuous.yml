@@ -35,4 +35,4 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj', '**/Directory.Packages.props') }}
       - name: 'Run: Compile'
         shell: pwsh
-        run: ./build.ps1 Print Compile
+        run: ./build.ps1 Print
