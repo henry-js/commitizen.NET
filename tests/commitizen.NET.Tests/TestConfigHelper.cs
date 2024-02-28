@@ -11,6 +11,7 @@ public static class TestConfigHelper
     {
         configurationRoot = new ConfigurationBuilder()
             .AddJsonFile("settings.test.json", optional: false, reloadOnChange: true)
+            .AddJsonFile("rules.test.json", optional: false, reloadOnChange: true)
             .Build();
 
         return configurationRoot;

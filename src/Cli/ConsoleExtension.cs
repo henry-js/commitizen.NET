@@ -14,7 +14,7 @@ public static class ConsoleExtensions
 
     public static void WriteInput(this IAnsiConsole console, string input)
     {
-        var markup = Emoji.Replace($":inbox_tray: {input}");
+        var markup = Emoji.Replace($":inbox_tray: input: {input}");
         console.MarkupLine(markup);
     }
 }

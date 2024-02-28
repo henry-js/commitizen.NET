@@ -5,30 +5,34 @@ namespace commitizen.NET.Lib.Validators;
 
 public class HeaderValidator : AbstractValidator<Header>
 {
-    public HeaderValidator(LintingSettings lintingSettings)
+    public HeaderValidator(Rules defaultRules)
     {
         RuleFor(header => header.Type)
             .NotEmpty()
+            .WithSeverity(Severity.Error)
             .WithMessage("❌ type may not be empty");
         RuleFor(header => header.Subject)
             .NotEmpty()
+            .WithSeverity(Severity.Error)
             .WithMessage("❌ description may not be empty");
 
         RuleFor(header => header.Type)
-            .TypeMustBeOfType<Header, string>(lintingSettings.Types);
+            .TypeMustBeOfType<Header, string>(defaultRules.TypeEnum.Value);
     }
 
 }
 public static class FluentValidationExtensions
 {
 
-    public static IRuleBuilderOptions<Header, string> TypeMustBeOfType<Header, TElement>(this IRuleBuilder<Header, string> ruleBuilder, Dictionary<string, CommitTypeInfo> types)
+    public static IRuleBuilderOptions<Header, string> TypeMustBeOfType<Header, TElement>(this IRuleBuilder<Header, string> ruleBuilder, IEnumerable<string> types)
     {
         return ruleBuilder.Must((rootObject, type, context) =>
         {
-            context.MessageFormatter.AppendArgument("Types", $"[{string.Join(", ", types.Keys)}]");
-            return types.ContainsKey(type);
+            context.MessageFormatter.AppendArgument("Types", $"[{string.Join(", ", types)}]");
+            return types.Contains(type);
         })
-        .WithMessage("{PropertyName} must be of {Types}");
+        .WithMessage("❌ {PropertyName} must be of {Types}")
+        .WithSeverity(Severity.Error)
+        .WithState(i => "❌");
     }
 }

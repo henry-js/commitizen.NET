@@ -12,10 +12,6 @@ internal class LintCommand(IConventionalCommitParser parser, IAnsiConsole consol
 
     public override int Execute(CommandContext context, Settings settings)
     {
-        if (string.IsNullOrWhiteSpace(settings.CommitMessage)) throw new ArgumentNullException(nameof(settings.CommitMessage), "Null or empty value passed to cli");
-
-        // var commit = new Commit("", settings.CommitMessage);
-
         var result = parser.Parse(settings.CommitMessage);
 
         console.WriteInput(settings.CommitMessage);
@@ -34,6 +30,13 @@ internal class LintCommand(IConventionalCommitParser parser, IAnsiConsole consol
     internal class Settings : CommandSettings
     {
         [CommandArgument(0, "[message]")]
-        public string? CommitMessage { get; set; }
+        public string CommitMessage { get; set; } = null!;
+
+        public override ValidationResult Validate()
+        {
+            return string.IsNullOrWhiteSpace(CommitMessage)
+                ? ValidationResult.Error("input cannot be null or empty")
+                : ValidationResult.Success();
+        }
     }
 }

@@ -7,15 +7,15 @@ namespace commitizen.NET.Lib;
 
 public class ConventionalCommitParser : IConventionalCommitParser
 {
-    public ConventionalCommitParser(LintingSettings defaultSettings)
+    public ConventionalCommitParser(Rules defaultSettings)
     {
-        DefaultSettings = defaultSettings;
+        DefaultRules = defaultSettings;
     }
     private readonly string[] lineFeeds = ["\n", "\r\n", "\r"];
 
     private readonly string[] NoteKeywords = ["BREAKING CHANGE"];
 
-    private LintingSettings DefaultSettings { get; }
+    private Rules DefaultRules { get; }
 
     public Result<ConventionalCommit> Parse(string msg)
     {
@@ -73,7 +73,7 @@ public class ConventionalCommitParser : IConventionalCommitParser
             IsBreakingChange = match.Groups["breakingChangeMarker"].Success
         };
 
-        var validator = new HeaderValidator(DefaultSettings);
+        var validator = new HeaderValidator(DefaultRules);
 
         var results = validator.Validate(conventionalHeader);
 

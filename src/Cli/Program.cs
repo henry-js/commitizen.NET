@@ -1,4 +1,6 @@
-﻿using commitizen.NET.Cli;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+using commitizen.NET.Cli;
 using commitizen.NET.Lib;
 using Community.Extensions.Spectre.Cli.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -12,9 +14,15 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.Sources.Clear();
 builder.Logging.ClearProviders();
 builder.Configuration.AddJsonFile("settings.json", false);
+builder.Configuration.AddJsonFile("rules.json", false);
 
 builder.Services.Configure<LintingSettings>(builder.Configuration.GetRequiredSection("LintingSettings"));
 builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<LintingSettings>>().Value);
+
+builder.Services.Configure<Rules>(builder.Configuration.GetRequiredSection(Rules.Key));
+var options = new Rules();
+builder.Configuration.GetSection(Rules.Key).Bind(options);
+builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<Rules>>().Value);
 builder.Services.AddSingleton<IConventionalCommitParser, ConventionalCommitParser>();
 
 builder.Services.AddCommand<LintCommand>("lint", cmd =>
