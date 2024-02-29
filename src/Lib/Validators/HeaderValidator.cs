@@ -10,11 +10,11 @@ public class HeaderValidator : AbstractValidator<Header>
         RuleFor(header => header.Type)
             .NotEmpty()
             .WithSeverity(Severity.Error)
-            .WithMessage("❌ type may not be empty");
+            .WithMessage("type may not be empty");
         RuleFor(header => header.Subject)
             .NotEmpty()
             .WithSeverity(Severity.Error)
-            .WithMessage("❌ description may not be empty");
+            .WithMessage("description may not be empty");
 
         RuleFor(header => header.Type)
             .TypeMustBeOfType<Header, string>(defaultRules.TypeEnum.Value);
@@ -23,7 +23,6 @@ public class HeaderValidator : AbstractValidator<Header>
 }
 public static class FluentValidationExtensions
 {
-
     public static IRuleBuilderOptions<Header, string> TypeMustBeOfType<Header, TElement>(this IRuleBuilder<Header, string> ruleBuilder, IEnumerable<string> types)
     {
         return ruleBuilder.Must((rootObject, type, context) =>
@@ -31,8 +30,7 @@ public static class FluentValidationExtensions
             context.MessageFormatter.AppendArgument("Types", $"[{string.Join(", ", types)}]");
             return types.Contains(type);
         })
-        .WithMessage("❌ {PropertyName} must be of {Types}")
-        .WithSeverity(Severity.Error)
-        .WithState(i => "❌");
+        .WithMessage("{PropertyName} must be of {Types}")
+        .WithSeverity(Severity.Info);
     }
 }

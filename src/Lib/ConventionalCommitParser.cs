@@ -2,6 +2,7 @@ using commitizen.NET.Lib.Validators;
 using static commitizen.NET.Lib.DefaultPatterns;
 using FluentResults;
 using System.Text.RegularExpressions;
+using commitizen.NET.Lib.Errors;
 
 namespace commitizen.NET.Lib;
 
@@ -78,7 +79,7 @@ public class ConventionalCommitParser : IConventionalCommitParser
         var results = validator.Validate(conventionalHeader);
 
         if (!results.IsValid)
-            return Result.Fail(results.Errors.Select(x => x.ErrorMessage));
+            return Result.Fail(results.Errors.Select(x => new ConventionalCommitValidationError(x)));
         return Result.Ok(conventionalHeader);
     }
 }

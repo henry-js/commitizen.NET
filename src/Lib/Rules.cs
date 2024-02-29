@@ -15,7 +15,7 @@ public class TypeEnum : CommitlintRule
     /// <summary>
     /// <value>List of allowed values</value
     /// </summary>
-    public string[] Value { get; set; }
+    public string[] Value { get; set; } = default!;
 }
 
 public class CommitlintRule
