@@ -16,9 +16,6 @@ builder.Logging.ClearProviders();
 builder.Configuration.AddJsonFile("settings.json", false);
 builder.Configuration.AddJsonFile("rules.json", false);
 
-builder.Services.Configure<LintingSettings>(builder.Configuration.GetRequiredSection("LintingSettings"));
-builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<LintingSettings>>().Value);
-
 builder.Services.Configure<Rules>(builder.Configuration.GetRequiredSection(Rules.Key));
 var options = new Rules();
 builder.Configuration.GetSection(Rules.Key).Bind(options);
