@@ -89,11 +89,11 @@ class Build : NukeBuild
             {
                 Log.Information("Building version {Value}", MinVer.Version);
                 DotNetBuild(_ => _
-                    .EnableSelfContained()
-                    .EnablePublishSingleFile()
+                    // .EnableSelfContained()
+                    // .EnablePublishSingleFile()
                     .SetProjectFile(ProjectDirectory)
                     .SetConfiguration("Release")
-                    .SetRuntime("win-x64")
+                    // .SetRuntime("win-x64")
                     .EnableNoRestore());
             });
     IReadOnlyCollection<Output> Outputs;
@@ -131,10 +131,14 @@ class Build : NukeBuild
     Target Pack => _ => _
         .Requires(() => RepoIsMainOrDevelop)
         .WhenSkipped(DependencyBehavior.Skip)
-        .DependsOn(Compile)
+        // .DependsOn(Compile)
         .Executes(() =>
         {
-
+            DotNetPack(_ => _
+                .SetProject(ProjectDirectory)
+                .EnableNoBuild()
+                .EnableNoRestore()
+            );
         });
     Target Publish => _ => _
         .Requires(() => RepoIsMainOrDevelop)
@@ -144,15 +148,13 @@ class Build : NukeBuild
         {
             PublishDirectory.CreateOrCleanDirectory();
 
-            DotNetPublish(config =>
-                config
-                    .SetProject(ProjectDirectory)
-                    .SetRuntime("win-x64")
-            .EnableSelfContained()
-            .EnablePublishSingleFile()
-            .EnableNoBuild()
-            .EnableNoRestore()
-            .SetRuntime("win-x64")
+            DotNetPublish(_ => _
+                .SetProject(ProjectDirectory)
+                // .EnableSelfContained()
+                // .EnablePublishSingleFile()
+                // .SetRuntime("win-x64")
+                .EnableNoBuild()
+                .EnableNoRestore()
             );
         });
     bool RepoIsMainOrDevelop => Repository.IsOnDevelopBranch() || Repository.IsOnMainOrMasterBranch();
