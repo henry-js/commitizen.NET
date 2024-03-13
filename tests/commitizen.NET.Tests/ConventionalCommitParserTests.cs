@@ -1,25 +1,27 @@
-﻿using FluentAssertions;
-using FluentResults.Extensions.FluentAssertions;
-using commitizen.NET.Lib;
+﻿using commitizen.NET.Lib;
+using FluentAssertions;
 using FluentResults;
+using FluentResults.Extensions.FluentAssertions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace commitizen.NET.Tests;
 
 public class ConventionalCommitParserTests
 {
 
-        private readonly Rules defaultRules = default!;
+        private readonly IOptions<Rules> defaultRules = default!;
 
         public ConventionalCommitParserTests()
         {
-                defaultRules = TestConfigHelper.GetIConfigurationRoot()
-                    .GetRequiredSection(Rules.Key).Get<Rules>() ?? throw new ArgumentNullException();
+                defaultRules = Options.Create(TestConfigHelper.GetIConfigurationRoot()
+                    .GetRequiredSection(Rules.Key).Get<Rules>() ?? throw new ArgumentNullException());
         }
 
         [Fact]
         public void ShouldParseTypeScopeAndSubjectFromSingleLineCommitMessage()
         {
+
                 var parser = new ConventionalCommitParser(defaultRules);
                 var msg = "feat(scope): broadcast $destroy event on scope destruction";
                 var result = parser.Parse(msg);

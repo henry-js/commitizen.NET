@@ -3,14 +3,15 @@ using static commitizen.NET.Lib.DefaultPatterns;
 using FluentResults;
 using System.Text.RegularExpressions;
 using commitizen.NET.Lib.Errors;
+using Microsoft.Extensions.Options;
 
 namespace commitizen.NET.Lib;
 
 public class ConventionalCommitParser : IConventionalCommitParser
 {
-    public ConventionalCommitParser(Rules defaultSettings)
+    public ConventionalCommitParser(IOptions<Rules> defaultSettings)
     {
-        DefaultRules = defaultSettings;
+        DefaultRules = defaultSettings.Value;
     }
     private readonly string[] lineFeeds = ["\n", "\r\n", "\r"];
 

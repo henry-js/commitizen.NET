@@ -13,7 +13,6 @@ using Spectre.Console.Cli;
 var builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.Sources.Clear();
 builder.Logging.ClearProviders();
-builder.Configuration.AddJsonFile("settings.json", false);
 builder.Configuration.AddJsonFile("rules.json", false);
 
 builder.Services.Configure<Rules>(builder.Configuration.GetRequiredSection(Rules.Key));
