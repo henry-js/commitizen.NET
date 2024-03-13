@@ -25,7 +25,7 @@ using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
 [GitHubActions(
     "continuous",
     GitHubActionsImage.UbuntuLatest,
-    AutoGenerate = true,
+    AutoGenerate = false,
     OnPushBranches = ["develop"],
     InvokedTargets = [nameof(Compile)],
     FetchDepth = 0)]
