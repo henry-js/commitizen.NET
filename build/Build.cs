@@ -109,6 +109,9 @@ class Build : NukeBuild
         .Before(Publish, Pack)
         .Executes(() =>
         {
+            Log.Information($"RootDir: {RootDirectory}");
+            Log.Information($"TestDir: {TestDirectory}");
+
             var ResultsDirectory = RootDirectory / "TestResults";
             ResultsDirectory.CreateOrCleanDirectory();
             Outputs = DotNetTest(_ => _
