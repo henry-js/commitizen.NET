@@ -10,9 +10,30 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/commitlint.NET/bin/Debug/net8.0/commitlint.NET.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/src/commitlint.NET",
+            "program": "${workspaceFolder}/.artifacts/bin/Cli/debug/czn.dll",
+            "args": [
+                "lint",
+                "foo: bar"
+            ],
+            "cwd": "${workspaceFolder}/src/Cli",
+            // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            // Use IntelliSense to find out which attributes exist for C# debugging
+            // Use hover for the description of the existing attributes
+            // For further information visit https://github.com/dotnet/vscode-csharp/blob/main/debugger-launchjson.md
+            "name": "Debug NUKE",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/build/bin/Debug/_build.dll",
+            "args": [
+                "Test"
+            ],
+            "cwd": "${workspaceFolder}/build",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false

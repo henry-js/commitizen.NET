@@ -1,0 +1,61 @@
+{
+    "LintingSettings": {
+        "Types": {
+            "feat": {
+                "Description": "A new feature",
+                "Title": "Features",
+                "Emoji": "✨"
+            },
+            "fix": {
+                "Description": "A bug fix",
+                "Title": "Bug Fixes",
+                "Emoji": "🐛"
+            },
+            "docs": {
+                "Description": "Documentation only changes",
+                "Title": "Documentation",
+                "Emoji": "📚"
+            },
+            "style": {
+                "Description": "Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)",
+                "Title": "Styles",
+                "Emoji": "💎"
+            },
+            "refactor": {
+                "Description": "A code change that neither fixes a bug nor adds a feature",
+                "Title": "Code Refactoring",
+                "Emoji": "📦"
+            },
+            "perf": {
+                "Description": "A code change that improves performance",
+                "Title": "Performance Improvements",
+                "Emoji": "🚀"
+            },
+            "test": {
+                "Description": "Adding missing tests or correcting existing tests",
+                "Title": "Tests",
+                "Emoji": "🧪"
+            },
+            "build": {
+                "Description": "Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)",
+                "Title": "Builds",
+                "Emoji": "🛠"
+            },
+            "ci": {
+                "Description": "Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)",
+                "Title": "Continuous Integrations",
+                "Emoji": "⚙️"
+            },
+            "chore": {
+                "Description": "Other changes that don't modify src or test files",
+                "Title": "Chores",
+                "Emoji": "♻️"
+            },
+            "revert": {
+                "Description": "Reverts a previous commit",
+                "Title": "Reverts",
+                "Emoji": "🗑️"
+            }
+        }
+    }
+}

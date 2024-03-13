@@ -1,4 +1,4 @@
 {
   "$schema": "./build.schema.json",
-  "Solution": "commitlint.NET.sln"
+  "Solution": "commitizen.NET.sln"
 }
