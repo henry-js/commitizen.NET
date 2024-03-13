@@ -142,9 +142,9 @@ class Build : NukeBuild
 
     Target Pack => _ => _
         .Requires(() => RepoIsMainOrDevelop)
-
         .WhenSkipped(DependencyBehavior.Skip)
-        // .DependsOn(Compile)
+        .DependsOn(Compile)
+        .Produces(PackDirectory / "*.nupkg")
         .Executes(() =>
         {
             DotNetPack(_ => _
