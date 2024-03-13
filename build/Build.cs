@@ -87,22 +87,23 @@ class Build : NukeBuild
     .After(Clean)
         .Executes(() =>
         {
-            DotNetRestore(c =>
-            c.SetForce(true)
+            DotNetRestore(_ => _
+                .SetForce(true)
                 .SetProjectFile(Solution.Directory));
         });
 
     Target Compile => _ => _
         .DependsOn(Clean, Restore)
         .Executes(() =>
-            {
-                Log.Information("Building version {Value}", MinVer.Version);
-                DotNetBuild(_ => _
-                    .SetProjectFile(ProjectDirectory)
-                    .EnableNoRestore()
-                    .SetConfiguration("Release")
-                    .EnableNoRestore());
-            });
+        {
+            Log.Information("Building version {Value}", MinVer.Version);
+            DotNetBuild(_ => _
+                .SetProjectFile(ProjectDirectory)
+                .EnableNoLogo()
+                .EnableNoRestore()
+                .SetConfiguration("Release")
+            );
+        });
     IReadOnlyCollection<Output> Outputs;
     Target Test => _ => _
         .TriggeredBy(Compile)
@@ -115,7 +116,8 @@ class Build : NukeBuild
             var ResultsDirectory = RootDirectory / "TestResults";
             ResultsDirectory.CreateOrCleanDirectory();
             Outputs = DotNetTest(_ => _
-                .SetProjectFile(TestDirectory)
+                // .SetProjectFile(TestDirectory)
+                .EnableNoLogo()
                 .EnableNoBuild()
                 .EnableNoRestore()
                 .SetDataCollector("XPlat Code Coverage")
@@ -134,7 +136,7 @@ class Build : NukeBuild
                 ReportGenerator(_ => _
                     .AddReports(coverageReport)
                     .SetTargetDirectory(ResultsDirectory / "coveragereport")
-                    );
+                );
             }
         });
 
@@ -146,10 +148,11 @@ class Build : NukeBuild
         .Executes(() =>
         {
             DotNetPack(_ => _
-                .SetProject(ProjectDirectory)
-                .SetOutputDirectory(PackDirectory)
+                .EnableNoLogo()
                 .EnableNoBuild()
                 .EnableNoRestore()
+                .SetProject(ProjectDirectory)
+                .SetOutputDirectory(PackDirectory)
             );
         });
     Target Publish => _ => _
@@ -161,9 +164,10 @@ class Build : NukeBuild
             PublishDirectory.CreateOrCleanDirectory();
 
             DotNetPublish(_ => _
-                .SetProject(ProjectDirectory)
+                .EnableNoLogo()
                 .EnableNoBuild()
                 .EnableNoRestore()
+                .SetProject(ProjectDirectory)
             );
         });
     bool RepoIsMainOrDevelop => Repository.IsOnDevelopBranch() || Repository.IsOnMainOrMasterBranch();
