@@ -6,10 +6,6 @@
     <Nullable>enable</Nullable>
     <DebugType>embedded</DebugType>
     <AssemblyName>czn</AssemblyName>
-    <!-- <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
-    <PublishSingleFile>true</PublishSingleFile>
-    <PublishSelfContained>true</PublishSelfContained> -->
-
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>czn</ToolCommandName>
     <PackageId>commitizen.NET</PackageId>
@@ -46,12 +42,8 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
   </ItemGroup>
+
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\"></None>
   </ItemGroup>
-
-  <Target Name="Husky" BeforeTargets="Restore;CollectPackageReferences" Condition="'$(HUSKY)' != 0">
-    <Exec Command="dotnet tool restore" StandardOutputImportance="Low" StandardErrorImportance="High" />
-    <Exec Command="dotnet husky install" StandardOutputImportance="Low" StandardErrorImportance="High" WorkingDirectory="..\.." />
-  </Target>
 </Project>

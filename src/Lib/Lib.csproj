@@ -6,9 +6,6 @@
     <Nullable>enable</Nullable>
     <DebugType>embedded</DebugType>
     <AssemblyName>commitizen.NET.Lib</AssemblyName>
-    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
-
-
   </PropertyGroup>
 
   <ItemGroup>
