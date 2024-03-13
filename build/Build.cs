@@ -35,7 +35,9 @@ using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
         AutoGenerate = false,
         OnPullRequestBranches = ["main"],
         InvokedTargets = [nameof(Pack)],
-        FetchDepth = 0)]
+        FetchDepth = 0,
+        ImportSecrets = [nameof(NuGetApiKey)])
+        ]
 class Build : NukeBuild
 {
     /// Support plugins are available for:
@@ -50,6 +52,7 @@ class Build : NukeBuild
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
     [Solution(GenerateProjects = true)] readonly Solution Solution;
+    [Parameter][Secret] readonly string NuGetApiKey;
     [GitRepository] readonly GitRepository Repository;
     [MinVer] readonly MinVer MinVer;
     AbsolutePath ProjectDirectory => SourceDirectory / "Cli";
@@ -152,9 +155,19 @@ class Build : NukeBuild
                 .EnableNoBuild()
                 .EnableNoRestore()
                 .SetProject(ProjectDirectory)
-                .SetOutputDirectory(PackDirectory)
+                .SetOutputDirectory(PackDirectory / MinVer.Version)
             );
         });
+
+    Target Push => _ => _
+        .Executes(() =>
+        {
+            DotNetNuGetPush(_ => _
+                .SetApiKey(NuGetApiKey)
+                .SetTargetPath(PackDirectory / MinVer.Version)
+            );
+        });
+
     Target Publish => _ => _
         .Requires(requirement: () => Repository.IsOnMainOrMasterBranch())
         .WhenSkipped(DependencyBehavior.Skip)
