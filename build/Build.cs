@@ -4,6 +4,7 @@ using System.Linq;
 using Nuke.Common;
 using Nuke.Common.CI;
 using Nuke.Common.CI.GitHubActions;
+using Nuke.Common.CI.GitHubActions.Configuration;
 using Nuke.Common.Execution;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
@@ -24,9 +25,17 @@ using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
 [GitHubActions(
     "continuous",
     GitHubActionsImage.UbuntuLatest,
-    AutoGenerate = false,
-    On = [GitHubActionsTrigger.Push],
-    InvokedTargets = [nameof(Compile)])]
+    AutoGenerate = true,
+    OnPushBranches = ["develop"],
+    InvokedTargets = [nameof(Compile)],
+    FetchDepth = 0)]
+[GitHubActions(
+        "merge",
+        GitHubActionsImage.UbuntuLatest,
+        AutoGenerate = false,
+        OnPullRequestBranches = ["main"],
+        InvokedTargets = [nameof(Pack)],
+        FetchDepth = 0)]
 class Build : NukeBuild
 {
     /// Support plugins are available for:
@@ -89,11 +98,9 @@ class Build : NukeBuild
             {
                 Log.Information("Building version {Value}", MinVer.Version);
                 DotNetBuild(_ => _
-                    // .EnableSelfContained()
-                    // .EnablePublishSingleFile()
                     .SetProjectFile(ProjectDirectory)
+                    .EnableNoRestore()
                     .SetConfiguration("Release")
-                    // .SetRuntime("win-x64")
                     .EnableNoRestore());
             });
     IReadOnlyCollection<Output> Outputs;
@@ -106,8 +113,8 @@ class Build : NukeBuild
             ResultsDirectory.CreateOrCleanDirectory();
             Outputs = DotNetTest(_ => _
                 .SetProjectFile(TestDirectory)
-                // .EnableNoBuild()
-                // .EnableNoRestore()
+                .EnableNoBuild()
+                .EnableNoRestore()
                 .SetDataCollector("XPlat Code Coverage")
                 .SetResultsDirectory(ResultsDirectory)
                 .SetRunSetting(
@@ -130,18 +137,20 @@ class Build : NukeBuild
 
     Target Pack => _ => _
         .Requires(() => RepoIsMainOrDevelop)
+
         .WhenSkipped(DependencyBehavior.Skip)
         // .DependsOn(Compile)
         .Executes(() =>
         {
             DotNetPack(_ => _
                 .SetProject(ProjectDirectory)
+                .SetOutputDirectory(PackDirectory)
                 .EnableNoBuild()
                 .EnableNoRestore()
             );
         });
     Target Publish => _ => _
-        .Requires(() => RepoIsMainOrDevelop)
+        .Requires(requirement: () => Repository.IsOnMainOrMasterBranch())
         .WhenSkipped(DependencyBehavior.Skip)
         .DependsOn(Compile)
         .Executes(() =>
@@ -150,9 +159,6 @@ class Build : NukeBuild
 
             DotNetPublish(_ => _
                 .SetProject(ProjectDirectory)
-                // .EnableSelfContained()
-                // .EnablePublishSingleFile()
-                // .SetRuntime("win-x64")
                 .EnableNoBuild()
                 .EnableNoRestore()
             );
