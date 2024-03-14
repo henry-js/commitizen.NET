@@ -8,36 +8,38 @@ public static class ConsoleExtensions
     {
         int errors = 0;
         int warnings = 0;
-
+        const string errorEmoji = ":cross_mark:";
+        const string warnEmoji = ":white_exclamation_mark:";
         var grid = new Grid().AddColumns(2);
-
         foreach (var error in result.Errors)
         {
-            string emoji = "";
             var severity = error.Metadata["Severity"].ToString();
-            if (severity == "Error")
+            switch (severity)
             {
-                emoji = ":cross_mark:";
-                errors++;
+                case "Error":
+                    errors++;
+                    grid.AddRow(Emoji.Replace(errorEmoji), error.Message.EscapeMarkup());
+                    break;
+                case "Warning":
+                    warnings++;
+                    grid.AddRow(Emoji.Replace(warnEmoji), error.Message.EscapeMarkup());
+                    break;
             }
-            else if (severity == "Warning")
-            {
-                emoji = ":warning:";
-                warnings++;
-            }
-            grid.AddRow(Emoji.Replace(emoji), error.Message.EscapeMarkup());
         }
-        string summaryEmoji = errors > 0 ? ":cross_mark:" : ":warning:";
-        string summary = $"found {errors} errors, {warnings} warnings";
+        string summaryEmoji = errors > 0 ? errorEmoji : warnEmoji;
+        string summary = $"found [red]{errors} errors[/], [yellow]{warnings} warnings[/]";
 
         grid.AddRow(Emoji.Replace(summaryEmoji), summary);
 
         console.Write(grid);
+        console.Write(new Rule());
+        console.WriteLine("Correct format:\n");
+        console.WriteLine(ConventionalCommitConstants.CorrectFormat);
     }
 
     public static void WriteInput(this IAnsiConsole console, string input)
     {
-        var markup = Emoji.Replace($":inbox_tray: input: {input}");
+        var markup = Emoji.Replace($":inbox_tray: input => '{input}'");
         console.MarkupLine(markup);
     }
 }
