@@ -109,7 +109,7 @@ class Build : NukeBuild
         });
     IReadOnlyCollection<Output> Outputs;
     Target Test => _ => _
-        .TriggeredBy(Compile)
+        .DependsOn(Compile)
         .Before(Publish, Pack)
         .Executes(() =>
         {

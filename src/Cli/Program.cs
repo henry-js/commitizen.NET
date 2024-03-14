@@ -13,7 +13,9 @@ using Spectre.Console.Cli;
 var builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.Sources.Clear();
 builder.Logging.ClearProviders();
-builder.Configuration.AddJsonFile("rules.json", false);
+builder.Configuration
+    .SetBasePath(new FileInfo(typeof(Program).Assembly.Location).DirectoryName)
+    .AddJsonFile($"{new FileInfo(typeof(Program).Assembly.Location).DirectoryName}/rules.json", false);
 
 builder.Services.Configure<Rules>(builder.Configuration.GetRequiredSection(Rules.Key));
 var options = new Rules();
