@@ -146,8 +146,9 @@ class Build : NukeBuild
     Target Pack => _ => _
         .Requires(() => RepoIsMainOrDevelop)
         .WhenSkipped(DependencyBehavior.Skip)
+        .After(Test)
         .DependsOn(Compile)
-        .Produces(PackDirectory / MinVer.Version / "*.nupkg")
+        // .Produces(PackDirectory / MinVer.Version / "*.nupkg")
         .Triggers(Push)
         .Executes(() =>
         {
@@ -161,6 +162,7 @@ class Build : NukeBuild
         });
 
     Target Push => _ => _
+        .Requires(() => !IsLocalBuild)
         .Executes(() =>
         {
             DotNetNuGetPush(_ => _
