@@ -165,8 +165,8 @@ class Build : NukeBuild
         {
             DotNetNuGetPush(_ => _
                 .SetApiKey(NuGetApiKey)
-                .SetTargetPath(PackDirectory / MinVer.Version)
-                .SetSource("https://apli.nuget.org/v3/index.json")
+                .SetTargetPath(PackDirectory / MinVer.Version / $"commitizen.NET.{MinVer.Version}.nupkg")
+                .SetSource("https://api.nuget.org/v3/index.json")
             );
         });
 
