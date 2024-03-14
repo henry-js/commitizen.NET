@@ -148,6 +148,7 @@ class Build : NukeBuild
         .WhenSkipped(DependencyBehavior.Skip)
         .DependsOn(Compile)
         .Produces(PackDirectory / "*.nupkg")
+        .Triggers(Push)
         .Executes(() =>
         {
             DotNetPack(_ => _
@@ -165,6 +166,7 @@ class Build : NukeBuild
             DotNetNuGetPush(_ => _
                 .SetApiKey(NuGetApiKey)
                 .SetTargetPath(PackDirectory / MinVer.Version)
+                .SetSource("https://apli.nuget.org/v3/index.json")
             );
         });
 

@@ -32,11 +32,9 @@ public static class ConsoleExtensions
         grid.AddRow(Emoji.Replace(summaryEmoji), summary);
 
         console.Write(grid);
-
         console.Write(new Rule());
         console.WriteLine("Correct format:\n");
         console.WriteLine(ConventionalCommitConstants.CorrectFormat);
-        Console.ReadLine();
     }
 
     public static void WriteInput(this IAnsiConsole console, string input)
