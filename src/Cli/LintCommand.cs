@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using commitizen.NET.Lib;
 using FluentResults;
 using Spectre.Console;
@@ -12,6 +13,13 @@ internal class LintCommand(IConventionalCommitParser parser, IAnsiConsole consol
 
     public override int Execute(CommandContext context, Settings settings)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(settings.CommitMessage);
+
+        if (settings.AsFile)
+        {
+            if (!File.Exists(settings.CommitMessage)) throw new FileNotFoundException("File does not exist", settings.CommitMessage);
+            else settings.CommitMessage = File.ReadAllLines(settings.CommitMessage)[0];
+        }
         var result = parser.Parse(settings.CommitMessage);
 
         console.WriteInput(settings.CommitMessage);
@@ -30,13 +38,16 @@ internal class LintCommand(IConventionalCommitParser parser, IAnsiConsole consol
     internal class Settings : CommandSettings
     {
         [CommandArgument(0, "[message]")]
-        public string CommitMessage { get; set; } = null!;
+        public string CommitMessage { get; set; }
+        [CommandOption("-f|--file")]
+        [DefaultValue(false)]
+        public bool AsFile { get; set; }
 
-        public override ValidationResult Validate()
-        {
-            return string.IsNullOrWhiteSpace(CommitMessage)
-                ? ValidationResult.Error("input cannot be null or empty")
-                : ValidationResult.Success();
-        }
+        // public override ValidationResult Validate()
+        // {
+        //     return string.IsNullOrWhiteSpace(CommitMessage)
+        //         ? ValidationResult.Error("input cannot be null or empty")
+        //         : ValidationResult.Success();
+        // }
     }
 }
