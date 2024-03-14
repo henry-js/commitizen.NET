@@ -27,7 +27,7 @@ using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = false,
     OnPushBranches = ["develop"],
-    InvokedTargets = [nameof(Compile)],
+    InvokedTargets = [nameof(Test)],
     FetchDepth = 0)]
 [GitHubActions(
         "merge",
@@ -146,8 +146,9 @@ class Build : NukeBuild
     Target Pack => _ => _
         .Requires(() => RepoIsMainOrDevelop)
         .WhenSkipped(DependencyBehavior.Skip)
+        .After(Test)
         .DependsOn(Compile)
-        .Produces(PackDirectory / "*.nupkg")
+        // .Produces(PackDirectory / MinVer.Version / "*.nupkg")
         .Triggers(Push)
         .Executes(() =>
         {
@@ -161,6 +162,7 @@ class Build : NukeBuild
         });
 
     Target Push => _ => _
+        .Requires(() => !IsLocalBuild)
         .Executes(() =>
         {
             DotNetNuGetPush(_ => _
