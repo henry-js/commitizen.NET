@@ -31,6 +31,6 @@ public static class FluentValidationExtensions
             return types.Contains(type);
         })
         .WithMessage("{PropertyName} must be of {Types}")
-        .WithSeverity(Severity.Info);
+        .WithSeverity(Severity.Error);
     }
 }
