@@ -36,6 +36,6 @@ jobs:
             .nuke/temp
             ~/.nuget/packages
           key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj', '**/Directory.Packages.props') }}
-      - name: 'Run: Compile'
-        run: ./build.ps1 Compile
+      - name: 'Run: Test'
+        run: ./build.ps1 Test
         shell: pwsh
