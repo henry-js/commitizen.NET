@@ -14,7 +14,7 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.Sources.Clear();
 builder.Logging.ClearProviders();
 builder.Configuration
-    .SetBasePath(new FileInfo(typeof(Program).Assembly.Location).DirectoryName)
+    .SetBasePath(new FileInfo(typeof(Program).Assembly.Location).DirectoryName!)
     .AddJsonFile($"{new FileInfo(typeof(Program).Assembly.Location).DirectoryName}/rules.json", false);
 
 builder.Services.Configure<Rules>(builder.Configuration.GetRequiredSection(Rules.Key));
@@ -31,13 +31,13 @@ builder.Services.AddCommand<LintCommand>("lint", cmd =>
 builder.UseSpectreConsole<LintCommand>(config =>
 {
 
-#if DEBUG
-    config.PropagateExceptions();
-    config.ValidateExamples();
-    config.UseBasicExceptionHandler();
-#endif
+    // #if DEBUG
+    // config.PropagateExceptions();
+    // config.ValidateExamples();
+    // config.UseBasicExceptionHandler();
+    // #endif
     config.SetApplicationName("czn");
 });
 
 var app = builder.Build();
-await app.RunAsync();
+app.Run();
