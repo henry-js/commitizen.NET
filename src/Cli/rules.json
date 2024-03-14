@@ -21,6 +21,32 @@
         "TypeNotEmpty": {
             "Level": "error",
             "Applicable": "always"
+        },
+        "HeaderMaxLength": {
+            "Level": "warning",
+            "Applicable": "always",
+            "Value": 72
+        },
+        "HeaderMinLength": {
+            "Level": "error",
+            "Applicable": "always",
+            "Value": 10
+        },
+        "HeaderNoTrim": {
+            "Level": "warning",
+            "Applicable": "always"
+        },
+        "BodyLeadingBlank": {
+            "Level": "error",
+            "Applicable": "always"
+        },
+        "BodyEmpty": {
+            "Level": "warning",
+            "Applicable": "never"
+        },
+        "FooterLeadingBlank": {
+            "Level": "error",
+            "Applicable": "always"
         }
     }
 }

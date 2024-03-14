@@ -1,6 +1,6 @@
-﻿namespace commitizen.NET.Lib;
+﻿namespace commitizen.NET.Lib.ConventionalCommit;
 
-public class ConventionalCommit
+public class Message
 {
     public Header Header { get; set; } = new Header();
     public string? Body { get; set; }

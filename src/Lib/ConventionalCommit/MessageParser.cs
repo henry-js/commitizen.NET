@@ -1,15 +1,14 @@
-using commitizen.NET.Lib.Validators;
-using static commitizen.NET.Lib.DefaultPatterns;
+using static commitizen.NET.Lib.ConventionalCommit.DefaultPatterns;
 using FluentResults;
 using System.Text.RegularExpressions;
 using commitizen.NET.Lib.Errors;
 using Microsoft.Extensions.Options;
 
-namespace commitizen.NET.Lib;
+namespace commitizen.NET.Lib.ConventionalCommit;
 
-public class ConventionalCommitParser : IConventionalCommitParser
+public class MessageParser : IMessageParser
 {
-    public ConventionalCommitParser(IOptions<Rules> defaultSettings)
+    public MessageParser(IOptions<Rules> defaultSettings)
     {
         DefaultRules = defaultSettings.Value;
     }
@@ -19,13 +18,13 @@ public class ConventionalCommitParser : IConventionalCommitParser
 
     private Rules DefaultRules { get; }
 
-    public Result<ConventionalCommit> Parse(string msg)
+    public Result<Message> Parse(string msg)
     {
         string[] msgLines = msg.Split(lineFeeds, StringSplitOptions.None);
         Result<Header> headerResult = ParseHeader(msgLines[0]);
 
         var commitResult = headerResult.ToResult(h =>
-        new ConventionalCommit()
+        new Message()
         {
             Header = h,
             Original = msg
@@ -45,7 +44,7 @@ public class ConventionalCommitParser : IConventionalCommitParser
         throw new NotImplementedException();
     }
 
-    private void FindIssues(Result<ConventionalCommit> result)
+    private void FindIssues(Result<Message> result)
     {
         var conventionalCommit = result.Value;
         var issuesMatch = IssuesPattern.Matches(conventionalCommit.Original);
@@ -85,7 +84,7 @@ public class ConventionalCommitParser : IConventionalCommitParser
     }
 }
 
-public interface IConventionalCommitParser
+public interface IMessageParser
 {
-    public Result<ConventionalCommit> Parse(string msg);
+    public Result<Message> Parse(string msg);
 }

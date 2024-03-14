@@ -1,4 +1,5 @@
 ﻿using commitizen.NET.Lib;
+using commitizen.NET.Lib.ConventionalCommit;
 using FluentAssertions;
 using FluentResults;
 using FluentResults.Extensions.FluentAssertions;
@@ -22,7 +23,7 @@ public class ConventionalCommitParserTests
         public void ShouldParseTypeScopeAndSubjectFromSingleLineCommitMessage()
         {
 
-                var parser = new ConventionalCommitParser(defaultRules);
+                var parser = new MessageParser(defaultRules);
                 var msg = "feat(scope): broadcast $destroy event on scope destruction";
                 var result = parser.Parse(msg);
                 var conventionalCommit = result.Value;
@@ -35,7 +36,7 @@ public class ConventionalCommitParserTests
         [Fact]
         public void ShouldParseTypeScopeAndSubjectFromSingleLineCommitMessageIfSubjectUsesColon()
         {
-                var parser = new ConventionalCommitParser(defaultRules);
+                var parser = new MessageParser(defaultRules);
 
                 var message = "feat(scope): broadcast $destroy: event on scope destruction";
                 // var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", message);
@@ -54,9 +55,9 @@ public class ConventionalCommitParserTests
         public void ShouldFailValidationWhenHeaderTypeIsInvalid(string commitMessage)
         {
                 // var testCommit = new TestCommit("", commitMessage);
-                var parser = new ConventionalCommitParser(defaultRules);
+                var parser = new MessageParser(defaultRules);
 
-                Result<ConventionalCommit> conventionalCommit = parser.Parse(commitMessage);
+                Result<Message> conventionalCommit = parser.Parse(commitMessage);
 
                 conventionalCommit.Should().BeFailure();
         }
@@ -87,7 +88,7 @@ public class ConventionalCommitParserTests
         [InlineData("feat(scope)!: broadcast $destroy: event on scope destruction")]
         public void ShouldSupportExclamationMarkToSignifyingBreakingChanges(string commitMessage)
         {
-                var parser = new ConventionalCommitParser(defaultRules);
+                var parser = new MessageParser(defaultRules);
 
                 // var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
                 var result = parser.Parse(commitMessage);
@@ -108,7 +109,7 @@ public class ConventionalCommitParserTests
         [InlineData("fix: #64 subject #65 text. (#66)", new[] { "64", "65", "66" })]
         public void ShouldExtractCommitIssues(string commitMessage, string[] expectedIssues)
         {
-                var parser = new ConventionalCommitParser(defaultRules);
+                var parser = new MessageParser(defaultRules);
 
                 // var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
                 var result = parser.Parse(commitMessage);
@@ -164,7 +165,7 @@ public class ConventionalCommitParserTests
         public void ShouldFailValidationWhenHeaderDescriptionIsInvalid(string commitMessage)
         {
                 // var testCommit = new TestCommit("", commitMessage);
-                var parser = new ConventionalCommitParser(defaultRules);
+                var parser = new MessageParser(defaultRules);
 
                 var result = parser.Parse(msg: commitMessage);
 

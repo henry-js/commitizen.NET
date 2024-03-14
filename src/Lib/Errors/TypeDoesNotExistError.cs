@@ -1,3 +1,4 @@
+using commitizen.NET.Lib.ConventionalCommit;
 using FluentResults;
 
 namespace commitizen.NET.Lib;

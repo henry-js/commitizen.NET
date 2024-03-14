@@ -1,10 +1,10 @@
-using commitizen.NET.Lib;
+using commitizen.NET.Lib.ConventionalCommit;
 using FluentResults;
 using Spectre.Console;
 
 public static class ConsoleExtensions
 {
-    public static void WriteErrors(this IAnsiConsole console, Result<ConventionalCommit> result)
+    public static void WriteErrors(this IAnsiConsole console, Result<Message> result)
     {
         int errors = 0;
         int warnings = 0;
@@ -34,7 +34,7 @@ public static class ConsoleExtensions
         console.Write(grid);
         console.Write(new Rule());
         console.WriteLine("Correct format:\n");
-        console.WriteLine(ConventionalCommitConstants.CorrectFormat);
+        console.WriteLine(Constants.CorrectFormat);
     }
 
     public static void WriteInput(this IAnsiConsole console, string input)

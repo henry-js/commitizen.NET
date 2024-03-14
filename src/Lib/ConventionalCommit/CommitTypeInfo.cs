@@ -1,4 +1,4 @@
-namespace commitizen.NET.Lib;
+namespace commitizen.NET.Lib.ConventionalCommit;
 
 public class CommitTypeInfo
 {

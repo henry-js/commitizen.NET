@@ -1,14 +1,15 @@
 using System.ComponentModel;
 using commitizen.NET.Lib;
+using commitizen.NET.Lib.ConventionalCommit;
 using FluentResults;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace commitizen.NET.Cli;
 
-internal class LintCommand(IConventionalCommitParser parser, IAnsiConsole console) : Command<LintCommand.Settings>
+internal class LintCommand(IMessageParser parser, IAnsiConsole console) : Command<LintCommand.Settings>
 {
-    private readonly IConventionalCommitParser parser = parser;
+    private readonly IMessageParser parser = parser;
     private readonly IAnsiConsole console = console;
 
     public override int Execute(CommandContext context, Settings settings)
@@ -38,7 +39,8 @@ internal class LintCommand(IConventionalCommitParser parser, IAnsiConsole consol
     internal class Settings : CommandSettings
     {
         [CommandArgument(0, "[message]")]
-        public string CommitMessage { get; set; }
+        public string CommitMessage { get; set; } = string.Empty;
+
         [CommandOption("-f|--file")]
         [DefaultValue(false)]
         public bool AsFile { get; set; }

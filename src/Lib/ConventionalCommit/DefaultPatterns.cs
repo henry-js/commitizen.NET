@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace commitizen.NET.Lib;
+namespace commitizen.NET.Lib.ConventionalCommit;
 
 public static partial class DefaultPatterns
 {

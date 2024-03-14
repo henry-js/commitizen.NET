@@ -1,7 +1,6 @@
-using commitizen.NET.Lib;
 using FluentValidation;
 
-namespace commitizen.NET.Lib.Validators;
+namespace commitizen.NET.Lib.ConventionalCommit;
 
 public class HeaderValidator : AbstractValidator<Header>
 {
