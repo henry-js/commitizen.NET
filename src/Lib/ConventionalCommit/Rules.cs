@@ -26,13 +26,13 @@ public class CommitlintRule<T> : CommitlintRule
 public class CommitlintRule
 {
     public ErrorLevel Level { get; set; }
-    public Applicable Applicable { get; set; }
+    public State State { get; set; }
 }
 
-public enum Applicable
+public enum State
 {
-    never,
-    always,
+    off,
+    on,
 }
 
 public enum ErrorLevel
