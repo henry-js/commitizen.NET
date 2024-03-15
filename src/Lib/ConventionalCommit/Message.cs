@@ -5,7 +5,7 @@ public class Message
     public Header Header { get; set; } = new Header();
     public string? Body { get; set; }
     public string? Sha { get; set; }
-    public List<ConventionalCommitNote> Footers { get; set; } = [];
+    public List<Footer> Footers { get; set; } = [];
     public List<ConventionalCommitIssue> Issues { get; set; } = [];
     public bool IsFeature => Header.Type == "feat";
     public bool IsFix => Header.Type == "fix";

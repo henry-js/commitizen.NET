@@ -61,6 +61,14 @@ public class ConventionalCommitParserTests
 
                 conventionalCommit.Should().BeFailure();
         }
+        [Theory]
+        [ClassData(typeof(CommitMessageGenerator))]
+        public void ShouldParseMultiLineCommitMessages(string commitMessage)
+        {
+                var parser = new MessageParser(defaultRules);
+
+                Result<Message> message = parser.Parse(commitMessage);
+        }
 
         //         [Fact]
         //         public void ShouldExtractCommitNotes()

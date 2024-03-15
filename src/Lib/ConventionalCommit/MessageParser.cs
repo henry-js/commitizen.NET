@@ -22,13 +22,32 @@ public class MessageParser : IMessageParser
     {
         string[] msgLines = msg.Split(lineFeeds, StringSplitOptions.None);
         Result<Header> headerResult = ParseHeader(msgLines[0]);
-
         var commitResult = headerResult.ToResult(h =>
         new Message()
         {
             Header = h,
             Original = msg
         });
+
+        var msgRemaining = string.Join(Environment.NewLine, msgLines[1..]);
+        Result<Footer> footerResult;
+        if (HasFooter(msgRemaining, out int startIndex))
+        {
+            footerResult = ParseFooter(msgRemaining);
+        }
+        else
+        {
+            footerResult = Result.Fail<Footer>("");
+        }
+
+        Result<Body> bodyResult;
+
+        if (startIndex < 1)
+        {
+            bodyResult = ParseBody(msgRemaining[0..startIndex]);
+        }
+        var matches = FooterPattern.Matches(msgRemaining);
+        var body = matches.FirstOrDefault() is null ? msgRemaining : msgRemaining[0..matches.First().Index];
 
         if (commitResult.IsFailed)
             return commitResult;
@@ -39,7 +58,25 @@ public class MessageParser : IMessageParser
         return commitResult;
     }
 
-    private Result<Body> ParseBody(string[] strings)
+    private Result<Footer> ParseFooter(string input)
+    {
+        var matches = FooterPattern.Matches(input);
+        return Result.Fail<Footer>("");
+    }
+
+    private bool HasFooter(string msgLines, out int startIndex)
+    {
+        var matches = FooterPattern.Matches(msgLines);
+        if (!matches.Any())
+        {
+            startIndex = -1;
+            return false;
+        }
+        startIndex = matches.First().Index;
+        return true;
+    }
+
+    private Result<Body> ParseBody(string input)
     {
         throw new NotImplementedException();
     }

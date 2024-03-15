@@ -12,8 +12,7 @@
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/.artifacts/bin/Cli/debug/czn.dll",
             "args": [
-                ".git/COMMIT_EDITMSG",
-                "-f",
+                "fix: i am a fix\r\n\r\nmade-by: henry-js\r\n\r\napropos: henry-js",
             ],
             "cwd": "${workspaceFolder}/src/Cli",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
