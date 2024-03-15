@@ -14,7 +14,6 @@ public class HeaderValidator : AbstractValidator<Header>
             .NotEmpty()
             .WithSeverity(Severity.Error)
             .WithMessage("description may not be empty");
-
         RuleFor(header => header.Type)
             .TypeMustBeOfType<Header, string>(defaultRules.TypeEnum.Value);
     }

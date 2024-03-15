@@ -6,6 +6,10 @@ public class ConventionalCommitValidator : AbstractValidator<Message>
 {
     public ConventionalCommitValidator(Rules rules)
     {
-        RuleFor(commit => commit.Header).SetValidator(new HeaderValidator(rules));
+
+        if (rules.TypeEnum.Applicable == Applicable.always)
+        {
+            RuleFor(message => message.Header).SetValidator(new HeaderValidator(rules));
+        }
     }
 }

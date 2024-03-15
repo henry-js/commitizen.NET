@@ -7,15 +7,20 @@ public class Rules
     /// <summary>
     /// condition: <c>type</c> should be found in <c>Value</c>.
     /// </summary>
-    public TypeEnum TypeEnum { get; set; } = default!;
+    public CommitlintRule<string[]> TypeEnum { get; set; } = default!;
+    public CommitlintRule TypeNotEmpty { get; set; } = default!;
+    public CommitlintRule<int> HeaderMaxLength { get; set; } = default!;
+    public CommitlintRule<int> HeaderMinLength { get; set; } = default!;
+    public CommitlintRule HeaderNoTrim { get; set; } = default!;
+    public CommitlintRule BodyLeadingBlank { get; set; } = default!;
+    public CommitlintRule BodyEmpty { get; set; } = default!;
+    public CommitlintRule FooterLeadingBlank { get; set; } = default!;
 }
 
-public class TypeEnum : CommitlintRule
+public class CommitlintRule<T> : CommitlintRule
+    where T : notnull//, new()
 {
-    /// <summary>
-    /// <value>List of allowed values</value
-    /// </summary>
-    public string[] Value { get; set; } = default!;
+    public T Value { get; set; } = default!;
 }
 
 public class CommitlintRule
