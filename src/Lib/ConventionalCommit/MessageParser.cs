@@ -3,6 +3,7 @@ using FluentResults;
 using System.Text.RegularExpressions;
 using commitizen.NET.Lib.Errors;
 using Microsoft.Extensions.Options;
+using FluentValidation.Results;
 
 namespace commitizen.NET.Lib.ConventionalCommit;
 
@@ -10,64 +11,64 @@ public class MessageParser : IMessageParser
 {
     public MessageParser(IOptions<Rules> defaultSettings)
     {
-        DefaultRules = defaultSettings.Value;
+        Rules = defaultSettings.Value;
     }
     private readonly string[] lineFeeds = ["\n", "\r\n", "\r"];
 
     private readonly string[] NoteKeywords = ["BREAKING CHANGE"];
 
-    private Rules DefaultRules { get; }
+    private Rules Rules { get; }
 
     public Result<Message> Parse(string msg)
     {
-        string[] msgLines = msg.Split(lineFeeds, StringSplitOptions.None);
-        Result<Header> headerResult = ParseHeader(msgLines[0]);
-        var commitResult = headerResult.ToResult(h =>
-        new Message()
+        var nlRegex = new Regex(@"\r?\n|\r");
+        string[] msgParts = nlRegex.Split(msg, 2);
+        string header = msgParts[0];
+        var headerResult = ParseHeader(header);
+        if (!headerResult.Validation.IsValid)
         {
-            Header = h,
-            Original = msg
-        });
-
-        var msgRemaining = string.Join(Environment.NewLine, msgLines[1..]);
-        Result<Footer> footerResult;
-        if (HasFooter(msgRemaining, out int startIndex))
-        {
-            footerResult = ParseFooter(msgRemaining);
+            return Result.Fail(headerResult.Validation.Errors.Select(x => new ConventionalCommitValidationError(x)));
         }
-        else
+        if (msgParts.Length == 1)
         {
-            footerResult = Result.Fail<Footer>("");
+            var commit = new Message() { Header = headerResult.Value, Original = msg };
+            return Result.Ok(commit);
         }
 
-        Result<Body> bodyResult;
+        var bodyResult = ParseBody(msgParts[^1]);
 
-        if (startIndex < 1)
+        if (bodyResult.result.IsValid)
         {
-            bodyResult = ParseBody(msgRemaining[0..startIndex]);
+            var commit = new Message() { Header = headerResult.Value, Original = msg, Body = bodyResult.body };
+            return Result.Ok(commit);
         }
-        var matches = FooterPattern.Matches(msgRemaining);
-        var body = matches.FirstOrDefault() is null ? msgRemaining : msgRemaining[0..matches.First().Index];
-
-        if (commitResult.IsFailed)
-            return commitResult;
-
-        FindIssues(commitResult);
-
-        // if (msgLines.Length == 1)
-        return commitResult;
+        return Result.Ok();
     }
 
-    private Result<Footer> ParseFooter(string input)
+    private Footer? ParseFooter(string input)
     {
         var matches = FooterPattern.Matches(input);
-        return Result.Fail<Footer>("");
+        if (matches.Count() == 0)
+            return null;
+
+        var footer = new Footer();
+        for (int i = 0; i < matches.Count; i++)
+        {
+            var match = matches[i];
+            var token = match.Groups[RegexConstants.token];
+            var separator = match.Groups[RegexConstants.separator];
+            var valueStartIndex = separator.Index + separator.Value.Length;
+            var value = i + 1 == matches.Count ? input[valueStartIndex..] : input[valueStartIndex..matches[i + 1].Groups[RegexConstants.token].Index];
+            footer.Values.Add(new(token.Value, separator.Value, value));
+        }
+
+        return footer;
     }
 
-    private bool HasFooter(string msgLines, out int startIndex)
+    private bool HasFooter(string msg, out int startIndex)
     {
-        var matches = FooterPattern.Matches(msgLines);
-        if (!matches.Any())
+        var matches = FooterPattern.Matches(msg);
+        if (matches.Count == 0)
         {
             startIndex = -1;
             return false;
@@ -76,9 +77,28 @@ public class MessageParser : IMessageParser
         return true;
     }
 
-    private Result<Body> ParseBody(string input)
+    private (ValidationResult result, Body body) ParseBody(string msgRemaining)
     {
-        throw new NotImplementedException();
+        Body body = new();
+        string? footerText;
+        string bodyText;
+        if (HasFooter(msgRemaining, out int startIndex))
+        {
+            footerText = msgRemaining[startIndex..];
+            bodyText = msgRemaining[..startIndex];
+            var footer = ParseFooter(msgRemaining);
+            body = new Body { Text = bodyText, Footers = footer?.Values, FooterText = footerText };
+        }
+        else
+        {
+            body = new Body { Text = msgRemaining };
+        }
+
+        var validator = new CommitBodyValidator(Rules);
+
+        var vr = validator.Validate(body);
+
+        return (vr, body);
     }
 
     private void FindIssues(Result<Message> result)
@@ -97,27 +117,24 @@ public class MessageParser : IMessageParser
         }
     }
 
-    private Result<Header> ParseHeader(string header)
+    private HeaderResult ParseHeader(string header)
     {
         var match = HeaderPattern.Match(header);
 
-        if (!match.Success) return Result.Fail(new InvalidSyntaxError(header));
+        if (!match.Success) return new HeaderResult() { Validation = new ValidationResult(), Value = Header.Empty() };
 
         Header conventionalHeader = new()
         {
+            Raw = header,
             Type = match.Groups["type"].Value,
             Scope = match.Groups["scope"].Value,
             Subject = match.Groups["subject"].Value,
             IsBreakingChange = match.Groups["breakingChangeMarker"].Success
         };
 
-        var validator = new HeaderValidator(DefaultRules);
-
+        var validator = new HeaderValidator(Rules);
         var results = validator.Validate(conventionalHeader);
-
-        if (!results.IsValid)
-            return Result.Fail(results.Errors.Select(x => new ConventionalCommitValidationError(x)));
-        return Result.Ok(conventionalHeader);
+        return new HeaderResult() { Validation = results, Value = conventionalHeader };
     }
 }
 

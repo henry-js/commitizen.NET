@@ -2,24 +2,33 @@
 
 public class Message
 {
-    public Header Header { get; set; } = new Header();
-    public string? Body { get; set; }
+    public required Header Header { get; set; }
+    public Body? Body { get; set; }
     public string? Sha { get; set; }
-    public List<Footer> Footers { get; set; } = [];
     public List<ConventionalCommitIssue> Issues { get; set; } = [];
     public bool IsFeature => Header.Type == "feat";
     public bool IsFix => Header.Type == "fix";
-    public bool IsBreakingChange => Footers.Any(note => "BREAKING CHANGE".Equals(note.Title)) || Header.IsBreakingChange;
+    // public bool IsBreakingChange => Footer.Values.Any(note => note.StartsWith("BREAKING CHANGE") || Header.IsBreakingChange);
     public required string Original { get; init; }
 }
 
-public class Footer : ConventionalCommitNote
+public class Footer
 {
+    public List<FooterValue> Values { get; set; } = [];
 }
+public record FooterValue(string Token, string Separator, string Value);
 
 public class Body
 {
-    public string[] Paragraphs { get; set; } = [];
+    public Body(string rawText)
+    {
+        Text = rawText;
+    }
+    public Body() { }
+    public string Text { get; init; }
+    public bool HasFooter { get; set; } = false;
+    public string? FooterText { get; set; }
+    public List<FooterValue>? Footers = [];
 }
 
 public class Header
@@ -28,6 +37,12 @@ public class Header
     public string Type { get; init; } = string.Empty;
     public string Subject { get; init; } = string.Empty;
     public bool IsBreakingChange { get; internal set; }
+    public required string Raw { get; init; }
+
+    internal static Header Empty()
+    {
+        return new Header() { Raw = "" };
+    }
 }
 
 public class ConventionalCommitNote
