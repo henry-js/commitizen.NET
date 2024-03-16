@@ -1,4 +1,5 @@
 using FluentValidation;
+using FluentValidation.Results;
 
 namespace commitizen.NET.Lib.ConventionalCommit;
 
@@ -17,18 +18,38 @@ public class HeaderValidator : AbstractValidator<Header>
         RuleFor(header => header.Type)
             .TypeMustBeOfType<Header, string>(defaultRules.TypeEnum.Value);
     }
-
 }
-public static class FluentValidationExtensions
+
+public class HeaderResult
 {
-    public static IRuleBuilderOptions<Header, string> TypeMustBeOfType<Header, TElement>(this IRuleBuilder<Header, string> ruleBuilder, IEnumerable<string> types)
+    public required ValidationResult Validation { get; init; }
+    public required Header Value { get; init; }
+    // public HeaderResult(string errorMessage) : base(errorMessage)
+    // {
+
+    // }
+    // protected HeaderResult(ValidationResult validationResult) : base(validationResult)
+    // {
+    // }
+
+    // public static HeaderResult FromValidation(ValidationResult validationResult)
+    // {
+    //     // HeaderResult result = new HeaderResult(validationResult);
+    //     // return result;
+    // }
+}
+
+public class CommitBodyValidator : AbstractValidator<Body>
+{
+    public CommitBodyValidator(Rules defaultRules)
     {
-        return ruleBuilder.Must((rootObject, type, context) =>
+        RuleFor(body => body)
+            .NotEmpty();
+        if (defaultRules.BodyLeadingBlank.State == State.on)
         {
-            context.MessageFormatter.AppendArgument("Types", $"[{string.Join(", ", types)}]");
-            return types.Contains(type);
-        })
-        .WithMessage("{PropertyName} must be of {Types}")
-        .WithSeverity(Severity.Error);
+            RuleFor(body => body.Text.Split(Constants.lineFeeds, StringSplitOptions.None)[0])
+                .Must(firstLine => string.Empty == firstLine)
+                .WithSeverity(Enum.Parse<Severity>(defaultRules.BodyLeadingBlank.Level.ToString()));
+        }
     }
 }
