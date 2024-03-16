@@ -3,53 +3,41 @@ using Bogus;
 
 public class CommitMessageGenerator : IEnumerable<object[]>
 {
-    private readonly IEnumerable<string> _types;
+    private static readonly IEnumerable<string> _types = ["chore", "build", "ci", "docs", "feat", "fix", "perf", "refactor", "revert", "style", "test", "types"];
     private readonly int _count;
+    private static Faker _faker;
 
-    public static IEnumerable<string> Generate(IEnumerable<string> types, int count = 10)
+    static CommitMessageGenerator()
     {
         Randomizer.Seed = new Random(12345);
-        var faker = new Faker("en");
-        var messages = new List<string>();
-        foreach (var i in Enumerable.Range(1, count))
-        {
-            string message = $"""
-{faker.PickRandom(types)}: {faker.Lorem.Sentence(3, 2)}
-
-{faker.Lorem.Sentence(7, 5)}
-
-{faker.Lorem.Sentence(6, 3)}
-
-Resolves #{faker.Random.Number(111, 9999)}
-Entered-by: {faker.Person.UserName}
-""";
-            messages.Add(message);
-        }
-        return messages;
-
+        _faker = new Faker("en");
     }
-    public CommitMessageGenerator()
+
+    public static string GenerateMessageWithBodyAndFooter()
     {
-        _types = ["chore", "build", "ci", "docs", "feat", "fix", "perf", "refactor", "revert", "style", "test", "types"];
-        _count = 10;
+        string message = $"""
+{_faker.PickRandom(_types)}: {_faker.Hacker.Phrase()}
+
+- {_faker.Hacker.Noun()} this.
+
+- {_faker.Hacker.Verb()} that.
+
+- {_faker.Hacker.IngVerb()} the widget.
+
+- {_faker.Hacker.Phrase()}
+
+Resolves #{_faker.Random.Number(111, 9999)}
+Entered-by: {_faker.Person.UserName}
+""";
+        return message;
     }
 
     public IEnumerator<object[]> GetEnumerator()
     {
-        Randomizer.Seed = new Random(12345);
-        var faker = new Faker("en");
-        foreach (var i in Enumerable.Range(1, _count))
+
+        foreach (var i in Enumerable.Range(1, count: 10))
         {
-            string message = $"""
-{faker.PickRandom(_types)}: {faker.Lorem.Sentence(3, 2)}
-
-{faker.Lorem.Sentence(7, 5)}
-
-{faker.Lorem.Sentence(6, 3)}
-
-Resolves #{faker.Random.Number(111, 9999)}
-Entered-by: {faker.Person.UserName}
-""";
+            string message = GenerateMessageWithBodyAndFooter();
             yield return [message];
         }
     }
