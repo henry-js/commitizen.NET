@@ -144,7 +144,7 @@ class Build : NukeBuild
         });
 
     Target Pack => _ => _
-        .Requires(() => RepoIsMainOrDevelop)
+        .Requires(() => Repository.IsOnMainOrMasterBranch())
         .WhenSkipped(DependencyBehavior.Skip)
         .After(Test)
         .DependsOn(Compile)
