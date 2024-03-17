@@ -1,43 +1,28 @@
+using System.Data;
 using FluentValidation;
 
 namespace commitizen.NET.Lib.ConventionalCommit;
 
 public class HeaderValidator : AbstractValidator<Header>
 {
-    public HeaderValidator(Rules defaultRules)
+    public HeaderValidator(Rules rules)
     {
         RuleFor(header => header.Type)
             .NotEmpty()
+            .When(_ => rules.TypeNotEmpty.IsActive)
             .WithSeverity(Severity.Error)
             .WithMessage("type may not be empty");
+        RuleFor(header => header.Type)
+            .TypeMustBeOfType<Header, string>(rules.TypeEnum.Value)
+            .When(_ => rules.TypeEnum.IsActive);
         RuleFor(header => header.Subject)
             .NotEmpty()
             .WithSeverity(Severity.Error)
             .WithMessage("description may not be empty");
-        RuleFor(header => header.Type)
-            .TypeMustBeOfType<Header, string>(defaultRules.TypeEnum.Value);
+        RuleFor(header => header.Text)
+            .MaximumLength(rules.HeaderMaxLength.Value)
+            .When(_ => rules.HeaderMaxLength.IsActive, ApplyConditionTo.CurrentValidator)
+            .MinimumLength(rules.HeaderMinLength.Value)
+            .When(_ => rules.HeaderMinLength.IsActive, ApplyConditionTo.CurrentValidator);
     }
-}
-
-public class CommitBodyValidator : AbstractValidator<Body>
-{
-    public CommitBodyValidator(Rules defaultRules)
-    {
-        RuleFor(body => body)
-            .NotEmpty();
-        if (defaultRules.BodyLeadingBlank.State == State.on)
-        {
-            RuleFor(body => body.Text.Split(Constants.lineFeeds, StringSplitOptions.None)[0])
-                .Must(firstLine => string.Empty == firstLine)
-                .WithSeverity(MapSeverity(defaultRules.BodyLeadingBlank.Level));
-        }
-    }
-
-    private static Severity MapSeverity(ErrorLevel level) => level switch
-    {
-        ErrorLevel.error => Severity.Error,
-        ErrorLevel.warning => Severity.Warning,
-        ErrorLevel.disable => Severity.Info,
-        _ => Severity.Info
-    };
 }
