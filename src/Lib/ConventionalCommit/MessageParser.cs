@@ -1,86 +1,54 @@
+using commitizen.NET.Lib.Errors;
 using static commitizen.NET.Lib.ConventionalCommit.DefaultPatterns;
 using FluentResults;
-using System.Text.RegularExpressions;
-using commitizen.NET.Lib.Errors;
 using Microsoft.Extensions.Options;
+using System.Text.RegularExpressions;
 
 namespace commitizen.NET.Lib.ConventionalCommit;
 
-public class MessageParser : IMessageParser
+public partial class MessageParser : IMessageParser
 {
-    public MessageParser(IOptions<Rules> defaultSettings)
+    public MessageParser(IOptions<Rules> defaultRules)
     {
-        DefaultRules = defaultSettings.Value;
+        Rules = defaultRules.Value;
     }
-    private readonly string[] lineFeeds = ["\n", "\r\n", "\r"];
 
-    private readonly string[] NoteKeywords = ["BREAKING CHANGE"];
-
-    private Rules DefaultRules { get; }
+    private Rules Rules { get; }
 
     public Result<Message> Parse(string msg)
     {
-        string[] msgLines = msg.Split(lineFeeds, StringSplitOptions.None);
-        Result<Header> headerResult = ParseHeader(msgLines[0]);
+        string[] msgParts = NewLinePattern.Split(msg, 2);
+        var header = new Header(msgParts[0]);
+        var body = msgParts.Length == 2 ? new Body(msgParts[1]) : Body.Empty();
+        var message = new Message { Text = msg, Header = header, Body = body };
 
-        var commitResult = headerResult.ToResult(h =>
-        new Message()
+        FindIssues(message);
+        var validator = new MessageValidator(Rules);
+
+        var result = validator.Validate(message);
+
+        if (!result.IsValid)
         {
-            Header = h,
-            Original = msg
-        });
+            return Result.Fail(result.Errors.Select(x => new ConventionalCommitValidationError(x)));
+        }
 
-        if (commitResult.IsFailed)
-            return commitResult;
-
-        FindIssues(commitResult);
-
-        // if (msgLines.Length == 1)
-        return commitResult;
+        return Result.Ok(message);
     }
 
-    private Result<Body> ParseBody(string[] strings)
-    {
-        throw new NotImplementedException();
-    }
 
-    private void FindIssues(Result<Message> result)
+    private void FindIssues(Message message)
     {
-        var conventionalCommit = result.Value;
-        var issuesMatch = IssuesPattern.Matches(conventionalCommit.Original);
+        var issuesMatch = IssuesPattern.Matches(message.Text);
 
         foreach (var issueMatch in issuesMatch.Cast<Match>())
         {
-            conventionalCommit.Issues.Add(
+            message.Issues.Add(
                 new ConventionalCommitIssue
                 {
                     Token = issueMatch.Groups["issueToken"].Value,
                     Id = issueMatch.Groups["issueId"].Value,
                 });
         }
-    }
-
-    private Result<Header> ParseHeader(string header)
-    {
-        var match = HeaderPattern.Match(header);
-
-        if (!match.Success) return Result.Fail(new InvalidSyntaxError(header));
-
-        Header conventionalHeader = new()
-        {
-            Type = match.Groups["type"].Value,
-            Scope = match.Groups["scope"].Value,
-            Subject = match.Groups["subject"].Value,
-            IsBreakingChange = match.Groups["breakingChangeMarker"].Success
-        };
-
-        var validator = new HeaderValidator(DefaultRules);
-
-        var results = validator.Validate(conventionalHeader);
-
-        if (!results.IsValid)
-            return Result.Fail(results.Errors.Select(x => new ConventionalCommitValidationError(x)));
-        return Result.Ok(conventionalHeader);
     }
 }
 

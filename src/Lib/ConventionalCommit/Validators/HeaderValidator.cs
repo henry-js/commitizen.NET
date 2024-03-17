@@ -1,35 +1,28 @@
+using System.Data;
 using FluentValidation;
 
 namespace commitizen.NET.Lib.ConventionalCommit;
 
 public class HeaderValidator : AbstractValidator<Header>
 {
-    public HeaderValidator(Rules defaultRules)
+    public HeaderValidator(Rules rules)
     {
         RuleFor(header => header.Type)
             .NotEmpty()
+            .When(_ => rules.TypeNotEmpty.IsActive)
             .WithSeverity(Severity.Error)
             .WithMessage("type may not be empty");
+        RuleFor(header => header.Type)
+            .TypeMustBeOfType<Header, string>(rules.TypeEnum.Value)
+            .When(_ => rules.TypeEnum.IsActive);
         RuleFor(header => header.Subject)
             .NotEmpty()
             .WithSeverity(Severity.Error)
             .WithMessage("description may not be empty");
-
-        RuleFor(header => header.Type)
-            .TypeMustBeOfType<Header, string>(defaultRules.TypeEnum.Value);
-    }
-
-}
-public static class FluentValidationExtensions
-{
-    public static IRuleBuilderOptions<Header, string> TypeMustBeOfType<Header, TElement>(this IRuleBuilder<Header, string> ruleBuilder, IEnumerable<string> types)
-    {
-        return ruleBuilder.Must((rootObject, type, context) =>
-        {
-            context.MessageFormatter.AppendArgument("Types", $"[{string.Join(", ", types)}]");
-            return types.Contains(type);
-        })
-        .WithMessage("{PropertyName} must be of {Types}")
-        .WithSeverity(Severity.Error);
+        RuleFor(header => header.Text)
+            .MaximumLength(rules.HeaderMaxLength.Value)
+            .When(_ => rules.HeaderMaxLength.IsActive, ApplyConditionTo.CurrentValidator)
+            .MinimumLength(rules.HeaderMinLength.Value)
+            .When(_ => rules.HeaderMinLength.IsActive, ApplyConditionTo.CurrentValidator);
     }
 }

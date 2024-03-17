@@ -1,4 +1,3 @@
-using commitizen.NET.Lib;
 using Microsoft.Extensions.Configuration;
 
 namespace commitizen.NET.Tests;

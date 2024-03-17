@@ -1,8 +1,5 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
-using commitizen.NET.Cli;
+﻿using commitizen.NET.Cli;
 using commitizen.NET.Lib.ConventionalCommit;
-using commitizen.NET.Lib;
 using Community.Extensions.Spectre.Cli.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

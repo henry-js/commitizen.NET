@@ -2,7 +2,7 @@
     "Rules": {
         "TypeEnum": {
             "Level": "error",
-            "Applicable": "always",
+            "State": "on",
             "Value": [
                 "chore",
                 "build",
@@ -20,7 +20,33 @@
         },
         "TypeNotEmpty": {
             "Level": "error",
-            "Applicable": "always"
+            "State": "on"
+        },
+        "HeaderMaxLength": {
+            "Level": "warning",
+            "State": "on",
+            "Value": 72
+        },
+        "HeaderMinLength": {
+            "Level": "error",
+            "State": "on",
+            "Value": 10
+        },
+        "HeaderNoTrim": {
+            "Level": "warning",
+            "State": "on"
+        },
+        "BodyLeadingBlank": {
+            "Level": "error",
+            "State": "on"
+        },
+        "BodyEmpty": {
+            "Level": "warning",
+            "State": "off"
+        },
+        "FooterLeadingBlank": {
+            "Level": "error",
+            "State": "on"
         }
     }
 }
