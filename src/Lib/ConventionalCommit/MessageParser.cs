@@ -22,9 +22,8 @@ public partial class MessageParser : IMessageParser
         var body = msgParts.Length == 2 ? new Body(msgParts[1]) : Body.Empty();
         var message = new Message { Text = msg, Header = header, Body = body };
 
-
         FindIssues(message);
-        var validator = new ConventionalCommitValidator(Rules);
+        var validator = new MessageValidator(Rules);
 
         var result = validator.Validate(message);
 
