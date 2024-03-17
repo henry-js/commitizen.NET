@@ -8,5 +8,6 @@ public class ConventionalCommitValidator : AbstractValidator<Message>
     {
 
         RuleFor(message => message.Header).SetValidator(new HeaderValidator(rules));
+        RuleFor(message => message.Body).SetValidator(new CommitBodyValidator(rules));
     }
 }

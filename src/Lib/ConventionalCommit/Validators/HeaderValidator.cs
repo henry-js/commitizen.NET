@@ -1,5 +1,4 @@
 using FluentValidation;
-using FluentValidation.Results;
 
 namespace commitizen.NET.Lib.ConventionalCommit;
 
@@ -20,25 +19,6 @@ public class HeaderValidator : AbstractValidator<Header>
     }
 }
 
-public class HeaderResult
-{
-    public required ValidationResult Validation { get; init; }
-    public required Header Value { get; init; }
-    // public HeaderResult(string errorMessage) : base(errorMessage)
-    // {
-
-    // }
-    // protected HeaderResult(ValidationResult validationResult) : base(validationResult)
-    // {
-    // }
-
-    // public static HeaderResult FromValidation(ValidationResult validationResult)
-    // {
-    //     // HeaderResult result = new HeaderResult(validationResult);
-    //     // return result;
-    // }
-}
-
 public class CommitBodyValidator : AbstractValidator<Body>
 {
     public CommitBodyValidator(Rules defaultRules)
@@ -49,7 +29,15 @@ public class CommitBodyValidator : AbstractValidator<Body>
         {
             RuleFor(body => body.Text.Split(Constants.lineFeeds, StringSplitOptions.None)[0])
                 .Must(firstLine => string.Empty == firstLine)
-                .WithSeverity(Enum.Parse<Severity>(defaultRules.BodyLeadingBlank.Level.ToString()));
+                .WithSeverity(MapSeverity(defaultRules.BodyLeadingBlank.Level));
         }
     }
+
+    private static Severity MapSeverity(ErrorLevel level) => level switch
+    {
+        ErrorLevel.error => Severity.Error,
+        ErrorLevel.warning => Severity.Warning,
+        ErrorLevel.disable => Severity.Info,
+        _ => Severity.Info
+    };
 }

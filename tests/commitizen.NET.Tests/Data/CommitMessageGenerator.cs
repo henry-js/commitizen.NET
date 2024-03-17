@@ -1,21 +1,23 @@
 using System.Collections;
 using Bogus;
 
-public class CommitMessageGenerator : IEnumerable<object[]>
+public class CommitMessageData
 {
     private static readonly IEnumerable<string> _types = ["chore", "build", "ci", "docs", "feat", "fix", "perf", "refactor", "revert", "style", "test", "types"];
-    private readonly int _count;
-    private static Faker _faker;
+    private static readonly Faker _faker;
 
-    static CommitMessageGenerator()
+    static CommitMessageData()
     {
         Randomizer.Seed = new Random(12345);
         _faker = new Faker("en");
     }
 
-    public static string GenerateMessageWithBodyAndFooter()
+    public static TheoryData<string> CommitMessageWithBodyAndFooter()
     {
-        string message = $"""
+        var theoryData = new TheoryData<string>();
+        foreach (var _ in Enumerable.Range(1, 10))
+        {
+            string message = $"""
 {_faker.PickRandom(_types)}: {_faker.Hacker.Phrase()}
 
 - {_faker.Hacker.Noun()} this.
@@ -29,18 +31,9 @@ public class CommitMessageGenerator : IEnumerable<object[]>
 Resolves #{_faker.Random.Number(111, 9999)}
 Entered-by: {_faker.Person.UserName}
 """;
-        return message;
-    }
-
-    public IEnumerator<object[]> GetEnumerator()
-    {
-
-        foreach (var i in Enumerable.Range(1, count: 10))
-        {
-            string message = GenerateMessageWithBodyAndFooter();
-            yield return [message];
+            theoryData.Add(message);
         }
-    }
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        return theoryData;
+    }
 }
