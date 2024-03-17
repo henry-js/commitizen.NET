@@ -13,7 +13,7 @@
             "program": "${workspaceFolder}/.artifacts/bin/Cli/debug/czn.dll",
             "args": [
                 // "fix: i am a fix\r\n\r\nboadaudhaukdfheuakrdaerd alkdajkldlkwjalk\r\naklsdlifj\r\nsjdhfejhk\r\nmade-by: henry-js\r\n\r\napropos: henry-js\r\n123: 456",
-                "fix: i am a fix"
+                "fix: i"
             ],
             "cwd": "${workspaceFolder}/src/Cli",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console

@@ -18,7 +18,7 @@ public class CommitMessageData
         foreach (var _ in Enumerable.Range(1, 10))
         {
             string message = $"""
-{_faker.PickRandom(_types)}: {_faker.Hacker.Phrase()}
+{_faker.PickRandom(_types)}: {_faker.Hacker.IngVerb()} {_faker.Hacker.Noun()}
 
 - {_faker.Hacker.Noun()} this.
 

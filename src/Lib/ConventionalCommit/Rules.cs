@@ -27,6 +27,8 @@ public class CommitlintRule
 {
     public ErrorLevel Level { get; set; }
     public State State { get; set; }
+
+    public bool IsActive => State == State.on;
 }
 
 public enum State

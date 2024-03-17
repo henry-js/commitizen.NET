@@ -63,10 +63,10 @@ public class ConventionalCommitParserTests
     }
 
     [Theory]
-    [InlineData("feat: zxcdasda\r\n123")]
-    [InlineData("fix: abcdefghijk\r\n123")]
-    [InlineData("refactor: lmnopqrstuv\r\n123")]
-    [InlineData("chore: wxyzasddcz\r\n123")]
+    [InlineData("feat: zxcdasda\r\n\r\n123\r\n\r\n456")]
+    [InlineData("fix: abcdefghijk\r\n\r\n123\r\n\r\n456")]
+    [InlineData("refactor: lmnopqrstuv\r\n\r\n123\r\n\r\n456")]
+    [InlineData("chore: wxyzasddcz\r\n\r\n123\r\n\r\n456")]
     public void ShouldFailValidationWhenHeaderIsNotSingleLine(string commitMessage)
     {
         var parser = new MessageParser(defaultRules);
