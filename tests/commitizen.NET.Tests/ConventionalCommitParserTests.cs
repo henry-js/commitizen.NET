@@ -63,6 +63,20 @@ public class ConventionalCommitParserTests
     }
 
     [Theory]
+    [InlineData("feat: zxcdasda\r\n123")]
+    [InlineData("fix: abcdefghijk\r\n123")]
+    [InlineData("refactor: lmnopqrstuv\r\n123")]
+    [InlineData("chore: wxyzasddcz\r\n123")]
+    public void ShouldFailValidationWhenHeaderIsNotSingleLine(string commitMessage)
+    {
+        var parser = new MessageParser(defaultRules);
+
+        Result<Message> conventionalCommit = parser.Parse(commitMessage);
+
+        conventionalCommit.Should().BeFailure();
+    }
+
+    [Theory]
     [InlineData("feat(scope)!: broadcast $destroy: event on scope destruction")]
     public void ShouldSupportExclamationMarkToSignifyingBreakingChanges(string commitMessage)
     {
