@@ -1,6 +1,4 @@
-﻿
-
-namespace commitizen.NET.Lib.ConventionalCommit;
+﻿namespace commitizen.NET.Lib.ConventionalCommit;
 
 public class Message
 {
@@ -46,18 +44,6 @@ public class Body
     public bool HasFooter { get; set; } = false;
     public string FooterText { get; set; } = string.Empty;
     public List<FooterValue>? Footers = [];
-
-    private bool ContainsFooter(string msg, out int startIndex)
-    {
-        var matches = DefaultPatterns.FooterPattern.Matches(msg);
-        if (matches.Count == 0)
-        {
-            startIndex = -1;
-            return false;
-        }
-        startIndex = matches.First().Index;
-        return true;
-    }
 
     internal static Body Empty()
     {

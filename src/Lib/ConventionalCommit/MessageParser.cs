@@ -1,9 +1,8 @@
+using commitizen.NET.Lib.Errors;
 using static commitizen.NET.Lib.ConventionalCommit.DefaultPatterns;
 using FluentResults;
-using System.Text.RegularExpressions;
-using commitizen.NET.Lib.Errors;
 using Microsoft.Extensions.Options;
-using FluentValidation.Results;
+using System.Text.RegularExpressions;
 
 namespace commitizen.NET.Lib.ConventionalCommit;
 

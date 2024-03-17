@@ -14,6 +14,4 @@ public static class FluentValidationExtensions
         .WithMessage("{PropertyName} must be of {Types}")
         .WithSeverity(Severity.Error);
     }
-
-    // public static IRuleBuilderOptions<
 }

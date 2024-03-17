@@ -62,28 +62,6 @@ public class ConventionalCommitParserTests
         conventionalCommit.Should().BeFailure();
     }
 
-    //         [Fact]
-    //         public void ShouldExtractCommitNotes()
-    //         {
-    //                 var parser = new ConventionalCommitParser(defaultSettings);
-    //                 string msg = """
-    // feat(scope): broadcast $destroy: event on scope destruction
-
-    // BREAKING CHANGE: this will break rc1 compatibility
-    // """;
-    //                 // var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", msg);
-
-    //                 var result = parser.Validate(msg);
-    //                 var conventionalCommit = result.Value;
-
-    //                 Assert.Single(conventionalCommit.Footers);
-
-    //                 var breakingChangeNote = conventionalCommit.Footers.Single();
-
-    //                 Assert.Equal("BREAKING CHANGE", breakingChangeNote.Title);
-    //                 Assert.Equal("this will break rc1 compatibility", breakingChangeNote.Text);
-    //         }
-
     [Theory]
     [InlineData("feat(scope)!: broadcast $destroy: event on scope destruction")]
     public void ShouldSupportExclamationMarkToSignifyingBreakingChanges(string commitMessage)

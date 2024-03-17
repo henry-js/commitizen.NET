@@ -1,7 +1,5 @@
 using System.ComponentModel;
-using commitizen.NET.Lib;
 using commitizen.NET.Lib.ConventionalCommit;
-using FluentResults;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
